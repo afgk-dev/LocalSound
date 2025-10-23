@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import dev.afgk.localsound.databinding.FragmentExampleBinding
+import dev.afgk.localsound.databinding.FragmentMainBinding
 import dev.afgk.localsound.ui.navigation.NavGraphRoutes
 
 class ExampleFragment : Fragment() {
-    private var _binding: FragmentExampleBinding? = null
+    private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -21,7 +21,7 @@ class ExampleFragment : Fragment() {
     ): View? {
         Log.i("ExampleFragment", "Container id ${container?.accessibilityClassName}")
 
-        _binding = FragmentExampleBinding.inflate(inflater, container, false)
+        _binding = FragmentMainBinding.inflate(inflater, container, false)
         return binding.root;
     }
 
