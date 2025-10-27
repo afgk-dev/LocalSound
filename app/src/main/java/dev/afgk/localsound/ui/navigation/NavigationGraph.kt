@@ -19,7 +19,7 @@ object NavigationRoutes {
 class NavigationGraph {
     fun setGraph(navController: NavController) {
         navController.graph = navController.createGraph(
-            startDestination = NavigationRoutes.onboarding._route
+            startDestination = NavigationRoutes.tracksList
         ) {
             navigation(
                 startDestination = NavigationRoutes.onboarding.requestReadPermission,
