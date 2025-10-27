@@ -1,8 +1,11 @@
 package dev.afgk.localsound.ui
 
 import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.content.ContextCompat
 
 enum class Ability {
     READ_AUDIO
@@ -40,8 +43,15 @@ class PermissionsUiState() {
             }
         }
 
-        fun can(): Boolean {
-            return true
+        fun can(ability: Ability, context: Context): Boolean {
+            fun checkPermission(permission: String, context: Context): Boolean {
+                return ContextCompat.checkSelfPermission(
+                    context,
+                    permission
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+
+            return checkPermission(mapAbilityToPermission(ability), context)
         }
     }
 }
