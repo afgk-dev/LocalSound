@@ -1,4 +1,4 @@
-package dev.afgk.localsound.ui.main
+package dev.afgk.localsound.ui
 
 import android.os.Bundle
 import android.view.View
@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.NavHostFragment
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.ActivityMainBinding
-import dev.afgk.localsound.ui.navigation.NavGraph
+import dev.afgk.localsound.ui.navigation.NavigationGraph
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
         val navController = navHostFragment.navController
 
-        NavGraph().setGraph(navController)
+        NavigationGraph().setGraph(navController)
 
         /**
          * Enable edge-to-edge and ensure that the app content won't be behind
