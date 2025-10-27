@@ -1,6 +1,7 @@
 package dev.afgk.localsound.ui
 
 import android.Manifest
+import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 
 enum class Ability {
@@ -30,16 +31,12 @@ class PermissionsUiState() {
     companion object {
         @JvmStatic
         private fun mapAbilityToPermission(ability: Ability): String {
-//            val sdkVersion = Build.VERSION.SDK_INT
-//
-//            return when {
-//                ability == Ability.READ_AUDIO && sdkVersion >= Build.VERSION_CODES.TIRAMISU -> Manifest.permission.READ_MEDIA_AUDIO
-//                ability == Ability.READ_AUDIO && sdkVersion < Build.VERSION_CODES.TIRAMISU -> Manifest.permission.READ_EXTERNAL_STORAGE
-//                else -> throw PermissionUiStateInvalidAbilityError()
-//            }
+            val sdkVersion = Build.VERSION.SDK_INT
 
-            return when (ability) {
-                Ability.READ_AUDIO -> Manifest.permission.READ_MEDIA_AUDIO
+            return when {
+                ability == Ability.READ_AUDIO && sdkVersion >= Build.VERSION_CODES.TIRAMISU -> Manifest.permission.READ_MEDIA_AUDIO
+                ability == Ability.READ_AUDIO && sdkVersion < Build.VERSION_CODES.TIRAMISU -> Manifest.permission.READ_EXTERNAL_STORAGE
+                else -> throw PermissionUiStateInvalidAbilityError()
             }
         }
 
