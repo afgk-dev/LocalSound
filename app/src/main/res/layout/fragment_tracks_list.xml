@@ -8,12 +8,39 @@
 
     <TextView
         style="?attr/textAppearanceBodyLarge"
+        android:id="@+id/textLoading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tracks List"
+        android:text="Loading..."
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/tracks_list_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_tags="tracks_list,tracks_list_title"
+        android:visibility="gone" />
+
+    <TextView
+        style="?attr/textAppearanceTitleLargeEmphasized"
+        android:id="@+id/tracks_list_title"
+        android:text="Suas músicas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-    />
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        android:paddingHorizontal="16dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tracks_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tracks_list_title"
+        android:paddingHorizontal="16dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
