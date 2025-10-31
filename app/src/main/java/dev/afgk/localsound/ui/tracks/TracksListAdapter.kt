@@ -28,7 +28,7 @@ class TracksListAdapter(var dataSet: List<AudioFile>) :
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         viewHolder.trackName.text = dataSet[position].name
-        viewHolder.trackArtistName.text = dataSet[position].artist
+        viewHolder.trackArtistName.text = dataSet[position].artist ?: "Artista desconhecido"
         viewHolder.trackDuration.text = StringFormatter.toMinutesSeconds(dataSet[position].duration)
     }
 
