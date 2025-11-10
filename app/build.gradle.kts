@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 android {
@@ -40,6 +41,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 }
 
