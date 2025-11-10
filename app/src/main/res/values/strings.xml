@@ -2,6 +2,9 @@
 <resources>
     <string name="app_name">LocalSound</string>
     <string name="track_list_title">Tracks will be here...</string>
+    <string name="default_search_bar_hint">Pesquise suas músicas</string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

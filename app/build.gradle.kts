@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+
+
 android {
     namespace = "dev.afgk.localsound"
     compileSdk = 36
@@ -50,6 +52,10 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment)
+
+    //Suport for Material Design 3
+    implementation("com.google.android.material:material:1.12.0")
+
 
     // Navigation Dependencies
 

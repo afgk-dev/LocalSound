@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:showIn="navigation_view">
+
+    <item  android:title="LocalSound">
+        <menu>
+            <item
+                android:id="@+id/nav_MyMusics"
+                android:icon="@drawable/baseline_audiotrack_24"
+                android:title="Sua Músicas"/>
+
+            <item
+                android:id="@+id/nav_MetadataEditor"
+                android:icon="@drawable/outline_app_registration_24"
+                android:title="Editor de Metadados"/>
+
+            <item
+                android:id="@+id/nav_ExportPlaylist"
+                android:icon="@drawable/outline_file_export_24"
+                android:title="Exportar Playlists"/>
+        </menu>
+    </item>
+    <!--Gemini says that for display the UI themes horizontally
+        I have to create a customized layout and I'm lazy for this-->
+    <item   android:title="Configurações de Tema">
+        <menu>
+
+            <item
+                android:id="@+id/nav_SystemTheme"
+                android:icon="@drawable/outline_android_24"
+                android:title="Sistema"/>
+            <item
+                android:id="@+id/nav_BrightTheme"
+                android:icon="@drawable/outline_clear_day_24"
+                android:title="Claro"
+                app:showAsAction="ifRoom"/>
+
+            <item
+                android:id="@+id/nav_DarkTheme"
+                android:icon="@drawable/outline_bedtime_24"
+                android:title="Escuro"
+                app:showAsAction="ifRoom"/>
+        </menu>
+    </item>
+
+</menu>
