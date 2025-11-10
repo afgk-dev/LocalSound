@@ -17,7 +17,7 @@ data class ReleaseEntity(
     ) val id: Long,
 
     val name: String,
-    val coverArtUri: String,
+    val coverArtUri: String?,
 
     val createdAt: Date
 )

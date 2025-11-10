@@ -14,7 +14,7 @@ data class PlaylistEntity(
     ) val id: Long,
 
     val name: String,
-    val coverUri: String,
+    val coverUri: String?,
 
     val createdAt: Date
 )
