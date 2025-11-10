@@ -1,11 +1,7 @@
 package dev.afgk.localsound.ui
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import dev.afgk.localsound.data.audioFiles.AudioFile
 import dev.afgk.localsound.data.audioFiles.AudioFilesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,18 +24,6 @@ class TracksListViewModel(
             val audioFiles = audioFilesRepository.loadFiles()
 
             _uiState.value = _uiState.value.copy(tracks = audioFiles)
-        }
-    }
-
-    companion object {
-        val AUDIO_FILES_REPOSITORY_KEY = object : CreationExtras.Key<AudioFilesRepository> {}
-
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val audioFilesRepository = this[AUDIO_FILES_REPOSITORY_KEY] as AudioFilesRepository
-
-                TracksListViewModel(audioFilesRepository)
-            }
         }
     }
 }

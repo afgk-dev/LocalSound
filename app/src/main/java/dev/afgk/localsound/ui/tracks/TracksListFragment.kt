@@ -9,15 +9,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import dev.afgk.localsound.data.audioFiles.AudioFilesRepository
+import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.databinding.FragmentTracksListBinding
 import dev.afgk.localsound.ui.Ability
 import dev.afgk.localsound.ui.PermissionsUiState
 import dev.afgk.localsound.ui.TracksListViewModel
+import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import kotlinx.coroutines.launch
 
@@ -56,12 +56,8 @@ class TracksListFragment : Fragment() {
 
         viewModel = ViewModelProvider.create(
             this,
-            TracksListViewModel.Factory,
-            extras = MutableCreationExtras().apply {
-                set(
-                    TracksListViewModel.AUDIO_FILES_REPOSITORY_KEY,
-                    AudioFilesRepository(requireContext())
-                )
+            viewModelFactory {
+                TracksListViewModel(MyApplication.appModule.audioFilesRepository)
             }
         )[TracksListViewModel::class]
 
