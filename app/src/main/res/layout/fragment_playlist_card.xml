@@ -27,35 +27,33 @@
             -->
             <GridLayout
                 android:id="@+id/coverGrid"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
                 android:rowCount="2">
 
                 <ImageView
                     android:id="@+id/image1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_rowSpan="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
-                    android:src="@drawable/baseline_audiotrack_24" />
+                    android:src="@drawable/baseline_audiotrack_24"
+                    android:scaleType="centerCrop" />
 
                 <ImageView
                     android:id="@+id/image2"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_rowSpan="1"
-                    android:layout_columnWeight="2"
+                    android:layout_columnWeight="1"
                     android:layout_margin="4dp"
                     android:src="@drawable/baseline_audiotrack_24"
                     android:scaleType="centerCrop" />
 
                 <ImageView
                     android:id="@+id/image3"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_rowSpan="2"
                     android:layout_columnWeight="1"
                     android:layout_margin="4dp"
                     android:src="@drawable/baseline_audiotrack_24"
@@ -63,10 +61,9 @@
 
                 <ImageView
                     android:id="@+id/image4"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_rowSpan="2"
-                    android:layout_columnWeight="2"
+                    android:layout_columnWeight="1"
                     android:layout_margin="4dp"
                     android:src="@drawable/baseline_audiotrack_24"
                     android:scaleType="centerCrop" />
