@@ -11,10 +11,10 @@ import java.util.Date
 data class PlaylistEntity(
     @PrimaryKey(
         autoGenerate = true
-    ) val id: Long,
+    ) val id: Long? = null,
 
     val name: String,
-    val coverUri: String?,
+    val coverUri: String? = null,
 
-    val createdAt: Date
+    val createdAt: Date = Date()
 )

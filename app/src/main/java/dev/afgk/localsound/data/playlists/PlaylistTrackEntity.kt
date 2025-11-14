@@ -28,7 +28,7 @@ import dev.afgk.localsound.data.tracks.TrackEntity
 data class PlaylistTrackEntity(
     @PrimaryKey(
         autoGenerate = true
-    ) val id: Long,
+    ) val id: Long = 0,
 
     val trackId: Long,
     val playlistId: Long,
