@@ -54,6 +54,12 @@ class TracksListFragment : Fragment() {
             NavigationRoutes.onboarding._route
         )
 
+        binding.navigateToCreatePlaylist.setOnClickListener { _ ->
+            navController.navigate(
+                NavigationRoutes.createPlaylist
+            )
+        }
+
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {

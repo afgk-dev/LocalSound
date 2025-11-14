@@ -36,7 +36,8 @@ class MainActivity : AppCompatActivity() {
          * [More about navigation](https://developer.android.com/guide/navigation/design)
          */
 
-        val navHostFragment = supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
         val navController = navHostFragment.navController
 
         NavigationGraph().setGraph(navController)

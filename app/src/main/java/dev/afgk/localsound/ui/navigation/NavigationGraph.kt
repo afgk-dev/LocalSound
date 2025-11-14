@@ -5,6 +5,7 @@ import androidx.navigation.dynamicfeatures.createGraph
 import androidx.navigation.dynamicfeatures.fragment.fragment
 import androidx.navigation.dynamicfeatures.navigation
 import dev.afgk.localsound.ui.onboarding.RequestReadPermissionFragment
+import dev.afgk.localsound.ui.playlistCreation.CreatePlaylistFragment
 import dev.afgk.localsound.ui.tracks.TracksListFragment
 
 object NavigationRoutes {
@@ -14,6 +15,7 @@ object NavigationRoutes {
     }
 
     const val tracksList = "tracksList"
+    const val createPlaylist = "createPlaylist"
 }
 
 class NavigationGraph {
@@ -32,6 +34,10 @@ class NavigationGraph {
 
             fragment<TracksListFragment>(
                 route = NavigationRoutes.tracksList
+            )
+
+            fragment<CreatePlaylistFragment>(
+                route = NavigationRoutes.createPlaylist
             )
         }
     }
