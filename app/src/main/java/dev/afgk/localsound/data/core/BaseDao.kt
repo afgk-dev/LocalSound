@@ -11,7 +11,7 @@ interface BaseDao<T> {
      * @param obj the object to be inserted.
      */
     @Insert
-    fun insert(obj: T)
+    suspend fun insert(obj: T)
 
     /**
      * Insert an array of objects in the database.
@@ -19,7 +19,7 @@ interface BaseDao<T> {
      * @param obj the objects to be inserted.
      */
     @Insert
-    fun insert(vararg obj: T)
+    suspend fun insert(vararg obj: T)
 
     /**
      * Update an object from the database.
@@ -27,7 +27,7 @@ interface BaseDao<T> {
      * @param obj the object to be updated
      */
     @Update
-    fun update(obj: T)
+    suspend fun update(obj: T)
 
     /**
      * Delete an object from the database
@@ -35,5 +35,5 @@ interface BaseDao<T> {
      * @param obj the object to be deleted
      */
     @Delete
-    fun delete(obj: T)
+    suspend fun delete(obj: T)
 }
