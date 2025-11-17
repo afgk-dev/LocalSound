@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c1eedfcf4c60d823d9ed72522270d8ba",
+    "identityHash": "0eee164fd04aa2ede4a09ce8f308d5cf",
     "entities": [
       {
         "tableName": "artists",
@@ -237,14 +237,8 @@
       },
       {
         "tableName": "playlists_tracks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `trackId` INTEGER NOT NULL, `playlistId` INTEGER NOT NULL, FOREIGN KEY(`trackId`) REFERENCES `tracks`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`playlistId`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`trackId` INTEGER NOT NULL, `playlistId` INTEGER NOT NULL, PRIMARY KEY(`trackId`, `playlistId`), FOREIGN KEY(`trackId`) REFERENCES `tracks`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`playlistId`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "trackId",
             "columnName": "trackId",
@@ -259,31 +253,12 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "trackId",
+            "playlistId"
           ]
         },
-        "indices": [
-          {
-            "name": "index_playlists_tracks_trackId",
-            "unique": false,
-            "columnNames": [
-              "trackId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlists_tracks_trackId` ON `${TABLE_NAME}` (`trackId`)"
-          },
-          {
-            "name": "index_playlists_tracks_playlistId",
-            "unique": false,
-            "columnNames": [
-              "playlistId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlists_tracks_playlistId` ON `${TABLE_NAME}` (`playlistId`)"
-          }
-        ],
         "foreignKeys": [
           {
             "table": "tracks",
@@ -378,7 +353,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c1eedfcf4c60d823d9ed72522270d8ba')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0eee164fd04aa2ede4a09ce8f308d5cf')"
     ]
   }
 }
