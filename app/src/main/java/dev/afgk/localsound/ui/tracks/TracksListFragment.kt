@@ -1,4 +1,4 @@
-package dev.afgk.localsound.ui.home
+package dev.afgk.localsound.ui.tracks
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,30 +13,31 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.afgk.localsound.MyApplication
-import dev.afgk.localsound.databinding.FragmentHomeBinding
+import dev.afgk.localsound.databinding.FragmentTracksListBinding
 import dev.afgk.localsound.ui.Ability
-import dev.afgk.localsound.ui.HomeViewModel
 import dev.afgk.localsound.ui.PermissionsUiState
+import dev.afgk.localsound.ui.TracksListViewModel
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
-import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
 
-class HomeFragment : Fragment() {
-    private var _binding: FragmentHomeBinding? = null
+class TracksListFragment : Fragment() {
+    private val TAG = "TracksListFragment"
+
+    private var _binding: FragmentTracksListBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var navController: NavController
-    private lateinit var viewModel: HomeViewModel
+    private lateinit var viewModel: TracksListViewModel
 
-    private val tracksListAdapter = TracksListAdapter(emptyList())
+    private val tracksListAdapter = TracksListAdapter(listOf())
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentTracksListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -56,25 +57,24 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {
-                HomeViewModel(MyApplication.appModule.tracksRepository)
+                TracksListViewModel(MyApplication.appModule.audioFilesRepository)
             }
-        )[HomeViewModel::class]
+        )[TracksListViewModel::class]
 
         binding.tracksList.layoutManager = LinearLayoutManager(requireContext())
         binding.tracksList.adapter = tracksListAdapter
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.tracksState.collect { tracks ->
-                    if (tracks.isEmpty()) {
-                        binding.textNoMusics.visibility = View.VISIBLE
-                        binding.tracksListGroup.visibility = View.GONE
-                    } else {
-                        binding.textNoMusics.visibility = View.GONE
-                        binding.tracksListGroup.visibility = View.VISIBLE
+                viewModel.uiState.collect { state ->
+                    when (state.tracks) {
+                        null -> viewModel.loadData()
+                        else -> {
+                            binding.textLoading.visibility = View.GONE
+                            binding.tracksListGroup.visibility = View.VISIBLE
+                            tracksListAdapter.dataSet = state.tracks
+                        }
                     }
-
-                    tracksListAdapter.updateData(tracks)
                 }
             }
         }
