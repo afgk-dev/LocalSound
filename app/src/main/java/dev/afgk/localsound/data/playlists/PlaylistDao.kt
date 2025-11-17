@@ -4,18 +4,13 @@ import androidx.room.Dao
 import androidx.room.Query
 import dev.afgk.localsound.data.core.BaseDao
 
-class PlaylistData(
-    val playlistName: String,
-    val coverUri: String
-)
-
 @Dao
 interface PlaylistDao: BaseDao<PlaylistEntity> {
 
     //Get all playlists
-    @Query("SELECT name AS 'playlistName', coverUri FROM playlists")
-    suspend fun getAll(): List<PlaylistData>
+    @Query("SELECT * FROM playlists")
+    suspend fun getAll(): List<PlaylistEntity>
     //Get all the playlists that have the given prefix
-    @Query("SELECT name AS 'playlistName', coverUri FROM playlists WHERE name LIKE :name || '%'")
-    suspend fun getByName(name: String): List<PlaylistData>
+    @Query("SELECT * FROM playlists WHERE name LIKE :name || '%'")
+    suspend fun getByName(name: String): List<PlaylistEntity>
 }

@@ -38,7 +38,5 @@ data class TrackEntity(
     val uri: String,
 
     val artistId: Long?,
-    val releaseId: Long?,
-
-    val createdAt: Date
+    val releaseId: Long?
 )

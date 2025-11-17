@@ -5,13 +5,6 @@ import androidx.room.Query
 import dev.afgk.localsound.data.core.BaseDao
 import dev.afgk.localsound.data.playlists.PlaylistEntity
 
-class QueueData(
-    val position: Int,
-    val trackName: String,
-    val artistName: String,
-    val uri: String,
-)
-
 @Dao
 interface QueueTrackDao: BaseDao<QueueTrackEntity> {
 
@@ -29,13 +22,18 @@ interface QueueTrackDao: BaseDao<QueueTrackEntity> {
 
     /**Select*/
     //Get the current track on the Queue
-    @Query("SELECT q.position, t.name AS 'trackName', t.uri, a.name AS 'artistName' FROM queue_tracks as q JOIN tracks as t ON (q.trackId = t.id) JOIN artists as a ON(t.artistId == a.id) WHERE q.position == 0")
-    suspend fun getCurrentTrack():QueueData?
+    @Query("SELECT * FROM queue_tracks as q JOIN tracks as t ON (q.trackId = t.id) JOIN artists as a ON(t.artistId == a.id) WHERE q.position == 0")
+    suspend fun getCurrentTrack():QueueTrackEntity?
 
     //Get all tracks on the Queue with the position bigger than 0
-    @Query("SELECT q.position, t.name AS 'trackName', t.uri, a.name AS 'artistName' FROM queue_tracks as q JOIN tracks as t ON (q.trackId = t.id) JOIN artists as a ON(t.artistId == a.id) WHERE q.position > 0")
-    suspend fun getNextTracks(): List<QueueData>
+    @Query("SELECT * FROM queue_tracks as q JOIN tracks as t ON (q.trackId = t.id) JOIN artists as a ON(t.artistId == a.id) WHERE q.position > 0")
+    suspend fun getNextTracks(): List<QueueTrackEntity>
+
     //Get all tracks on the Queue with the position bellow 0
-    @Query("SELECT q.position, t.name AS 'trackName', t.uri, a.name AS 'artistName' FROM queue_tracks as q JOIN tracks as t ON (q.trackId = t.id) JOIN artists as a ON(t.artistId == a.id) WHERE q.position < 0")
-    suspend fun getPastTracks(): List<QueueData>
+    @Query("SELECT * FROM queue_tracks as q JOIN tracks as t ON (q.trackId = t.id) JOIN artists as a ON(t.artistId == a.id) WHERE q.position < 0")
+    suspend fun getPastTracks(): List<QueueTrackEntity>
+
+
+    @Query("DELETE FROM queue_tracks WHERE id = :id")
+    suspend fun deleteQueueTrackById(id: List<Long>)
 }
