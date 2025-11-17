@@ -9,7 +9,6 @@ import dev.afgk.localsound.data.playlists.PlaylistTrackEntity
 import dev.afgk.localsound.data.queue.QueueTrackEntity
 import dev.afgk.localsound.data.releases.ReleaseEntity
 import dev.afgk.localsound.data.tracks.TrackEntity
-import dev.afgk.localsound.data.tracks.TracksDao
 
 @Database(
     entities = [
@@ -25,5 +24,4 @@ import dev.afgk.localsound.data.tracks.TracksDao
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun tracksDao(): TracksDao
 }

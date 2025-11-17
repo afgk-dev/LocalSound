@@ -2,13 +2,12 @@ package dev.afgk.localsound.ui.tracks
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dev.afgk.localsound.data.tracks.TrackAndArtist
+import dev.afgk.localsound.data.audioFiles.AudioFile
 import dev.afgk.localsound.databinding.TrackListItemBinding
 import dev.afgk.localsound.ui.helpers.StringFormatter
 
-class TracksListAdapter(var tracks: List<TrackAndArtist>) :
+class TracksListAdapter(var dataSet: List<AudioFile>) :
     RecyclerView.Adapter<TracksListAdapter.ViewHolder>() {
 
     class ViewHolder(binding: TrackListItemBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -28,31 +27,10 @@ class TracksListAdapter(var tracks: List<TrackAndArtist>) :
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        viewHolder.trackName.text = tracks[position].track.name
-        viewHolder.trackArtistName.text = tracks[position].artist?.name ?: "Artista desconhecido"
-        viewHolder.trackDuration.text =
-            StringFormatter.fromSecondsToMinutesAndSeconds(tracks[position].track.duration)
+        viewHolder.trackName.text = dataSet[position].name
+        viewHolder.trackArtistName.text = dataSet[position].artist ?: "Artista desconhecido"
+        viewHolder.trackDuration.text = StringFormatter.toMinutesSeconds(dataSet[position].duration)
     }
 
-    override fun getItemCount() = tracks.size
-
-    fun updateData(newTracks: List<TrackAndArtist>) {
-        val diffResult = DiffUtil.calculateDiff(
-            object : DiffUtil.Callback() {
-                override fun getNewListSize() = newTracks.size
-                override fun getOldListSize() = tracks.size
-
-                override fun areItemsTheSame(oldPos: Int, newPos: Int): Boolean {
-                    return tracks[oldPos].track.id == newTracks[newPos].track.id
-                }
-
-                override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean {
-                    return tracks[oldPos] == newTracks[newPos]
-                }
-            }
-        )
-
-        tracks = newTracks
-        diffResult.dispatchUpdatesTo(this)
-    }
+    override fun getItemCount() = dataSet.size
 }

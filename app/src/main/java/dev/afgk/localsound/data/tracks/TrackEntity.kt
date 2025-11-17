@@ -31,14 +31,14 @@ import java.util.Date
 data class TrackEntity(
     @PrimaryKey(
         autoGenerate = true
-    ) val id: Long = 0,
+    ) val id: Long,
 
     val name: String,
     val duration: Int,
     val uri: String,
 
-    val artistId: Long? = null,
-    val releaseId: Long? = null,
+    val artistId: Long?,
+    val releaseId: Long?,
 
-    val createdAt: Date = Date()
+    val createdAt: Date
 )
