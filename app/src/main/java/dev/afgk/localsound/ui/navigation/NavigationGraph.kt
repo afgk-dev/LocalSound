@@ -5,7 +5,7 @@ import androidx.navigation.dynamicfeatures.createGraph
 import androidx.navigation.dynamicfeatures.fragment.fragment
 import androidx.navigation.dynamicfeatures.navigation
 import dev.afgk.localsound.ui.onboarding.RequestReadPermissionFragment
-import dev.afgk.localsound.ui.tracks.TracksListFragment
+import dev.afgk.localsound.ui.home.HomeFragment
 
 object NavigationRoutes {
     object onboarding {
@@ -13,13 +13,13 @@ object NavigationRoutes {
         const val requestReadPermission = "requestReadPermission"
     }
 
-    const val tracksList = "tracksList"
+    const val home = "home"
 }
 
 class NavigationGraph {
     fun setGraph(navController: NavController) {
         navController.graph = navController.createGraph(
-            startDestination = NavigationRoutes.tracksList
+            startDestination = NavigationRoutes.home
         ) {
             navigation(
                 startDestination = NavigationRoutes.onboarding.requestReadPermission,
@@ -30,8 +30,8 @@ class NavigationGraph {
                 )
             }
 
-            fragment<TracksListFragment>(
-                route = NavigationRoutes.tracksList
+            fragment<HomeFragment>(
+                route = NavigationRoutes.home
             )
         }
     }

@@ -45,7 +45,7 @@ class RequestReadPermissionFragment : Fragment() {
 
         binding.requestPermissionBtn.setOnClickListener { view ->
             permissionsUiState.request(Ability.READ_AUDIO, requestPermissionLauncher) { granted ->
-                navController.navigate(NavigationRoutes.tracksList)
+                navController.navigate(NavigationRoutes.home)
             }
 
             Log.d(
