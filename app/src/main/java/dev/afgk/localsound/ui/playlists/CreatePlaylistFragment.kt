@@ -1,4 +1,4 @@
-package dev.afgk.localsound.ui.playlistCreation
+package dev.afgk.localsound.ui.playlists
 
 import android.os.Bundle
 import android.view.LayoutInflater
