@@ -2,8 +2,8 @@ package dev.afgk.localsound.ui.helpers
 
 class StringFormatter {
     companion object {
-        fun toMinutesSeconds(duration: Number): String {
-            val durationSeconds = duration.toInt() / 1000
+        fun fromSecondsToMinutesAndSeconds(duration: Number): String {
+            val durationSeconds = duration.toInt()
             val minutes = durationSeconds / 60
             val seconds = durationSeconds % 60
 
