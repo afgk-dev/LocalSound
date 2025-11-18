@@ -27,6 +27,7 @@
             android:id="@+id/playlist_name_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@+id/playlist_actions"
             app:layout_constraintLeft_toRightOf="@id/playlist_cover"
@@ -50,6 +51,7 @@
             android:id="@+id/playlist_actions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/playlist_cover"
             app:layout_constraintTop_toBottomOf="@id/playlist_name_details">
@@ -90,4 +92,43 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/order_button" />
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/playlist_success_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_tags="playlist_tracks_list,order_button,playlist_details" />
+
+    <com.google.android.material.loadingindicator.LoadingIndicator
+        android:id="@+id/playlist_loading"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/playlist_not_found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/outline_do_not_disturb_24" />
+
+        <TextView
+            style="?attr/textAppearanceBody1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Playlist não encontrada" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

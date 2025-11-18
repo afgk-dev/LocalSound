@@ -67,13 +67,14 @@ class PlaylistFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.playlistState.collect { playlist ->
-                if (playlist == null) return@collect
+                when (playlist) {
+                    is PlaylistViewModelUiState.Success -> {
+                        binding.playlistName.text = playlist.name
+                        binding.playlistStats.text = playlist.stats
 
-                binding.playlistName.text = playlist.name
-                binding.playlistStats.text =
-                    "${playlist.totalTracksCount}, ${playlist.totalDuration}"
-
-                tracksListAdapter.updateData(playlist.tracks)
+                        tracksListAdapter.updateData(playlist.tracks)
+                    }
+                }
             }
         }
     }

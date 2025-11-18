@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.navigateToPlaylist.setOnClickListener { _ ->
-            navController.navigate("${NavigationRoutes.playlist}/${1}")
+            navController.navigate("${NavigationRoutes.playlist}/${2L}")
         }
 
         viewModel = ViewModelProvider.create(

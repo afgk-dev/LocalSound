@@ -13,5 +13,5 @@ interface PlaylistsDao : BaseDao<PlaylistEntity> {
 
     @Transaction
     @Query("SELECT * FROM playlists WHERE id = :id")
-    fun getPlaylist(id: Long): Flow<PlaylistAndTracks>
+    fun getPlaylist(id: Long): Flow<PlaylistAndTracks?>
 }

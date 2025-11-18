@@ -2,9 +2,9 @@ package dev.afgk.localsound.ui.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavType
-import androidx.navigation.dynamicfeatures.createGraph
-import androidx.navigation.dynamicfeatures.fragment.fragment
-import androidx.navigation.dynamicfeatures.navigation
+import androidx.navigation.createGraph
+import androidx.navigation.fragment.fragment
+import androidx.navigation.navigation
 import dev.afgk.localsound.ui.home.HomeFragment
 import dev.afgk.localsound.ui.onboarding.RequestReadPermissionFragment
 import dev.afgk.localsound.ui.playlists.CreatePlaylistFragment
