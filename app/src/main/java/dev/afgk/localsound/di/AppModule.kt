@@ -34,7 +34,7 @@ class AppModuleImpl(
 
     override val playlistRepository: PlaylistRepository
         get() = PlaylistRepository(
-            database.playlistDao(),
+            database.playlistsDao(),
             database.playlistTrackDao()
         )
 }

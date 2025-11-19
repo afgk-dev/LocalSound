@@ -2,16 +2,11 @@ package dev.afgk.localsound.data.playlists
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.PrimaryKey
 import dev.afgk.localsound.data.tracks.TrackEntity
 
 @Entity(
     tableName = "playlists_tracks",
-    indices = [
-        Index(value = ["trackId"]),
-        Index(value = ["playlistId"])
-    ],
+    primaryKeys = ["trackId", "playlistId"],
     foreignKeys = [
         ForeignKey(
             entity = TrackEntity::class,
@@ -26,10 +21,6 @@ import dev.afgk.localsound.data.tracks.TrackEntity
     ]
 )
 data class PlaylistTrackEntity(
-    @PrimaryKey(
-        autoGenerate = true
-    ) val id: Long = 0,
-
     val trackId: Long,
     val playlistId: Long,
 )
