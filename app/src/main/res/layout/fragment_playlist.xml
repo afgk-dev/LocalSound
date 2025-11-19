@@ -97,7 +97,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_tags="playlist_tracks_list,order_button,playlist_details" />
+        app:constraint_referenced_ids="playlist_tracks_list,order_button,playlist_details" />
 
     <com.google.android.material.loadingindicator.LoadingIndicator
         android:id="@+id/playlist_loading"
@@ -106,7 +106,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+    />
 
     <LinearLayout
         android:id="@+id/playlist_not_found"
@@ -117,7 +119,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        >
 
         <ImageView
             android:layout_width="36dp"

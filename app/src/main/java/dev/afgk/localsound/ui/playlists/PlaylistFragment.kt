@@ -61,6 +61,9 @@ class PlaylistFragment : Fragment() {
         )[PlaylistViewModel::class]
 
         val playlistTracksList = binding.playlistTracksList
+        val playlistSuccessGroup = binding.playlistSuccessGroup
+        val playlistNotFound = binding.playlistNotFound
+        val playlistLoading = binding.playlistLoading
 
         playlistTracksList.layoutManager = LinearLayoutManager(requireContext())
         playlistTracksList.adapter = tracksListAdapter
@@ -69,10 +72,24 @@ class PlaylistFragment : Fragment() {
             viewModel.playlistState.collect { playlist ->
                 when (playlist) {
                     is PlaylistViewModelUiState.Success -> {
+                        playlistSuccessGroup.visibility = View.VISIBLE
+                        playlistNotFound.visibility = View.GONE
+                        playlistLoading.visibility = View.GONE
+
                         binding.playlistName.text = playlist.name
                         binding.playlistStats.text = playlist.stats
 
                         tracksListAdapter.updateData(playlist.tracks)
+                    }
+                    is PlaylistViewModelUiState.PlaylistNotFound -> {
+                        playlistSuccessGroup.visibility = View.GONE
+                        playlistNotFound.visibility = View.VISIBLE
+                        playlistLoading.visibility = View.GONE
+                    }
+                    is PlaylistViewModelUiState.Loading -> {
+                        playlistSuccessGroup.visibility = View.GONE
+                        playlistNotFound.visibility = View.GONE
+                        playlistLoading.visibility = View.VISIBLE
                     }
                 }
             }
