@@ -11,7 +11,7 @@ import java.util.Date
 data class PlaylistEntity(
     @PrimaryKey(
         autoGenerate = true
-    ) val id: Long? = null,
+    ) val id: Long = 0,
 
     val name: String,
     val coverUri: String? = null,
