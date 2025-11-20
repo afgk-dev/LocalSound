@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 data class CreatePlaylistState(
     val playlistName: String = "",
 
-    val isPlaylistCreated: Boolean = false,
+    val createdPlaylistId: Long? = null,
     val playlistNameInputError: String? = null
 )
 
@@ -48,12 +48,14 @@ class CreatePlaylistViewModel(
         }
     }
 
-    fun create() {
+    fun create(firstTrackId: Long? = null) {
         if (!validate()) return
 
         viewModelScope.launch {
-            playlistRepository.create(_uiState.value.playlistName)
-            _uiState.update { it.copy(isPlaylistCreated = true) }
+            val createdPlaylistId =
+                playlistRepository.create(_uiState.value.playlistName, firstTrackId)
+
+            _uiState.update { it.copy(createdPlaylistId = createdPlaylistId) }
         }
     }
 }

@@ -40,8 +40,13 @@ class NavigationGraph {
             )
 
             fragment<CreatePlaylistFragment>(
-                route = NavigationRoutes.createPlaylist
-            )
+                route = "${NavigationRoutes.createPlaylist}/{trackId}"
+            ) {
+                argument("trackId") {
+                    type = NavType.LongType
+                    nullable = false
+                }
+            }
 
             fragment<PlaylistFragment>(
                 route = "${NavigationRoutes.playlist}/{playlistId}"

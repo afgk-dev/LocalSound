@@ -16,6 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.databinding.FragmentCreatePlaylistBinding
 import dev.afgk.localsound.ui.helpers.viewModelFactory
+import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -50,18 +51,23 @@ class CreatePlaylistFragment : Fragment() {
         )[CreatePlaylistViewModel::class]
 
         val playlistNameInputText = binding.playlistNameInput.text.toString()
+        val firstTrackId = arguments?.getLong("trackId")!!
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { value ->
-                    if (value.isPlaylistCreated) {
+                    if (value.createdPlaylistId != null) {
                         Snackbar.make(
                             view,
                             "Playlist criada com sucesso!",
-                            Snackbar.LENGTH_LONG
+                            Snackbar.LENGTH_SHORT
                         ).show()
 
-                        navController.popBackStack()
+                        navController.navigate("${NavigationRoutes.playlist}/${value.createdPlaylistId}") {
+                            popUpTo(route = "${NavigationRoutes.createPlaylist}/${firstTrackId}") {
+                                inclusive = true
+                            }
+                        }
                     }
 
                     if (
@@ -84,7 +90,7 @@ class CreatePlaylistFragment : Fragment() {
         }
 
         binding.saveButton.setOnClickListener { _ ->
-            viewModel.create()
+            viewModel.create(firstTrackId)
         }
     }
 }
