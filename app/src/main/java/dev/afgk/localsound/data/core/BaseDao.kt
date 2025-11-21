@@ -5,6 +5,13 @@ import androidx.room.Insert
 import androidx.room.Update
 
 interface BaseDao<T> {
+    /**
+     * Insert an object in the database.
+     *
+     * @param obj the object to be inserted.
+     */
+    @Insert
+    suspend fun insert(obj: T): Long
 
     /**
      * Insert an array of objects in the database.
@@ -12,7 +19,7 @@ interface BaseDao<T> {
      * @param obj the objects to be inserted.
      */
     @Insert
-    suspend fun insert(vararg obj: T)
+    suspend fun insert(vararg obj: T): List<Long>
 
     /**
      * Update an object from the database.
