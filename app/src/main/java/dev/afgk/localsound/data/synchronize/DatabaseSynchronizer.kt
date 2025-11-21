@@ -18,48 +18,36 @@ import java.util.Date
 
 class DatabaseSynchronizer (
     private val mediaStoreRepo: AudioFilesRepository,
-    private val database: AppDatabase){
-
-
-    // Get the DAOs
-    private val tracksDao: TracksDao = database.tracksDao()
-    private val artistDao: ArtistDao = database.artistsDao()
-    private val releaseDao: ReleaseDao = database.releaseDao()
-
+    private val database: AppDatabase,
+    private val tracksDao: TracksDao,
+    private val artistDao: ArtistDao,
+    private val releaseDao: ReleaseDao
+){
     // Synchronize the data
-
     suspend fun sync() {
         // Ensure it will be made on an optimized thread
         withContext(Dispatchers.IO) {
             Log.d("DatabaseSynchronizer", "Starting sync process.")
 
-            val filesFromDevice = mediaStoreRepo.loadFiles()
-            val urisFromDevice = filesFromDevice.map { it.path }
-            val tracksFromDb = tracksDao.getAll()
-            val urisInDb = tracksFromDb.map { it.uri }
+            val tracksFromDevice = mediaStoreRepo.loadFiles()
+            val urisFromDevice = tracksFromDevice.map { it.path }
+            val urisInDb = tracksDao.getAllUris()
+            //toSet() is much faster to verify if an element is in the list he is big O(1)on average
+            val newFiles = tracksFromDevice.filter { it.path !in urisInDb.toSet()}
 
-            val newFiles = filesFromDevice.filter { it.path !in urisInDb }
-
-            if (newFiles.isNotEmpty()) {
-                Log.d(
-                    "DatabaseSynchronizer",
-                    "Encontrados ${newFiles.size} novos arquivos para inserir."
-                )
-                insertNewTracks(newFiles)
-            } else {
-                Log.d("DatabaseSynchronizer", "Nenhum arquivo novo para inserir.")
-            }
+            Log.d(
+                "DatabaseSynchronizer",
+                "Encontrados ${newFiles.size} novos arquivos para inserir."
+            )
+            insertNewTracks(newFiles)
 
 
-            val trackIdsToDelete = tracksFromDb
-                .filter { it.uri !in urisFromDevice } // Filtra as ENTIDADES que não estão mais no dispositivo
-                .map { it.id }                           // Extrai APENAS os IDs dessas entidades
 
-            if (trackIdsToDelete.isNotEmpty()) {
-                Log.d("DatabaseSynchronizer", "Encontrados ${trackIdsToDelete.size} IDs de músicas para excluir.")
-                deleteOldTracks(trackIdsToDelete) // Chama a nova função de deleção por IDs
-            } else {
-                Log.d("DatabaseSynchronizer", "Nenhuma música para excluir.")
+            val trackIdsToDelete = database.tracksDao().getIdsOfTracksNotInStorage(urisFromDevice)
+
+            Log.d("DatabaseSynchronizer", "Encontrados ${trackIdsToDelete.size} IDs de músicas para excluir.")
+            database.withTransaction {
+                database.tracksDao().deleteTracksByIds(trackIdsToDelete)
             }
 
             Log.d("DatabaseSynchronizer", "Processo de sincronização finalizado.")
@@ -69,6 +57,7 @@ class DatabaseSynchronizer (
     }
     private suspend fun insertNewTracks(newFiles: List<AudioFile>) {
         database.withTransaction {
+            //If newFiles i empty will not insert anything
             newFiles.forEach { newFile ->
                 val artistName = newFile.artist
                 val releaseName = newFile.release
@@ -108,12 +97,5 @@ class DatabaseSynchronizer (
             }
         }
         Log.d("DatabaseSynchronizer", "${newFiles.size} novos arquivos inseridos com sucesso.")
-    }
-
-    private suspend fun deleteOldTracks(tracksIdsToDelete: List<Long>) {
-        database.withTransaction {
-            tracksDao.deleteTrackById(tracksIdsToDelete)
-        }
-        Log.d("DatabaseSynchronizer", "Músicas obsoletas excluídas com sucesso.")
     }
 }
