@@ -6,20 +6,16 @@ import dev.afgk.localsound.data.core.BaseDao
 
 @Dao
 interface TracksDao: BaseDao<TrackEntity> {
-
-    @Query("SELECT * FROM tracks as t JOIN artists as a ON (t.artistId == a.id) ORDER BY t.name")
-    suspend fun getAll(): List<TrackEntity>
-
-    @Query("SELECT * FROM tracks as t JOIN artists as a ON (t.artistId == a.id) WHERE t.name LIKE  :track || '%' ORDER BY t.name")
-    suspend fun getTrackByName(track: String): List<TrackEntity>
-
+    //get a list of all tracks uris on db
     @Query("SELECT uri FROM tracks")
     suspend fun getAllUris(): List<String>
 
-    //Get the id of the Track by the name
-    @Query("SELECT id FROM tracks WHERE name = :name")
-    suspend fun getTrackIdByName(name: String): Long
+    //Get the tracks ids who are in the db but not in the storage
+    @Query("SELECT id FROM tracks WHERE uri NOT IN (:storageUris)")
+    suspend fun getIdsOfTracksNotInStorage(storageUris: List<String>): List<Long>
 
-    @Query("DELETE FROM tracks WHERE id = :id")
-    suspend fun deleteTrackById(id: List<Long>)
+    //@Query("SELECT * FROM tracks WHERE id IN(id: List<Long>)
+    //Delete tracks by ids
+    @Query("DELETE FROM tracks WHERE id IN (:ids)")
+    suspend fun deleteTracksByIds(ids: List<Long>)
 }
