@@ -23,9 +23,6 @@ class DatabaseSynchronizer (
     // Get the DAOs
     private val tracksDao: TracksDao = database.tracksDao()
     private val artistDao: ArtistDao = database.artistDao()
-    private val playlistTrackDao = database.playlistTrackDao()
-    private val queueTrackDao = database.queueDao()
-
 
         suspend fun sync() {
 
@@ -98,8 +95,6 @@ class DatabaseSynchronizer (
     private suspend fun deleteOldTracks(tracksIdsToDelete: List<Long>) {
         database.withTransaction {
             tracksDao.deleteTrackById(tracksIdsToDelete)
-            playlistTrackDao.deletePlaylistTracksById(tracksIdsToDelete)
-            queueTrackDao.deleteQueueTrackById(tracksIdsToDelete)
         }
         Log.d("DatabaseSynchronizer", "Músicas obsoletas excluídas com sucesso.")
     }
