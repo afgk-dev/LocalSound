@@ -8,10 +8,13 @@ import dev.afgk.localsound.data.artists.ArtistEntity
 import dev.afgk.localsound.data.audioFiles.AudioFile
 import dev.afgk.localsound.data.audioFiles.AudioFilesRepository
 import dev.afgk.localsound.data.core.AppDatabase
+import dev.afgk.localsound.data.releases.ReleaseDao
+import dev.afgk.localsound.data.releases.ReleaseEntity
 import dev.afgk.localsound.data.tracks.TrackEntity
 import dev.afgk.localsound.data.tracks.TracksDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 
 class DatabaseSynchronizer (
@@ -22,7 +25,10 @@ class DatabaseSynchronizer (
 
     // Get the DAOs
     private val tracksDao: TracksDao = database.tracksDao()
-    private val artistDao: ArtistDao = database.artistDao()
+    private val artistDao: ArtistDao = database.artistsDao()
+    private val releaseDao: ReleaseDao = database.releaseDao()
+
+    // Synchronize the data
 
         suspend fun sync() {
 
@@ -70,14 +76,30 @@ class DatabaseSynchronizer (
         database.withTransaction {
             newFiles.forEach { newFile ->
                 val artistName = newFile.artist
+                val releaseName = newFile.release
                 var artistId: Long? = null
+                var releaseId: Long? = null
 
-                    if (artistName != null) {
-                    // Busca o ID do artista. Se não existir, insere e obtém o novo ID.
+                //If artistName is null, artistId on tracks will be null
+                if (artistName != null) {
                     artistId = artistDao.getArtistIdByName(artistName)
-                    val newArtist = ArtistEntity(id = 0, name = artistName, pictureUri = null)
-                    artistDao.insert(newArtist)
+                    // Search for the artistId. If it doesn't find, it will be null
+                    if (artistId == null){
+                        // If id is null will add on database and get the new id
+                        val newArtist = ArtistEntity(id = 0, name = artistName, pictureUri = null, Date())
+                        artistId = artistDao.insert(newArtist)
+                    }
                 }
+                //If releaseName is null, releaseId on tracks will be null
+                if (releaseName != null) {
+                    // If id is null will add on database and get the new id
+                    releaseId = releaseDao.getReleaseIdByName(releaseName)
+                    if(releaseId == null){
+                        val newRelease = ReleaseEntity(id = 0, name = releaseName, coverArtUri = null, Date())
+                        releaseId = releaseDao.insert(newRelease)
+                    }
+                }
+                
 
                 val trackEntity = TrackEntity(
                     id = 0,
@@ -85,7 +107,7 @@ class DatabaseSynchronizer (
                     duration = newFile.duration.toInt(),
                     uri = newFile.path,
                     artistId = artistId,
-                    releaseId = null
+                    releaseId = releaseId
                 )
                 tracksDao.insert(trackEntity)
             }

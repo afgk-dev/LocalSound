@@ -19,6 +19,7 @@ class AudioFilesRepository(private val context: Context) {
             val id = MediaStore.Audio.Media._ID
             val title = MediaStore.Audio.Media.TITLE
             val artist = MediaStore.Audio.Media.ARTIST
+            val album = MediaStore.Audio.Media.ALBUM
             val duration = MediaStore.Audio.Media.DURATION
             val isMusic = MediaStore.Audio.Media.IS_MUSIC
         }
@@ -27,6 +28,7 @@ class AudioFilesRepository(private val context: Context) {
             cols.id,
             cols.title,
             cols.artist,
+            cols.album,
             cols.duration
         )
         val selection = "${cols.isMusic} = ?"
@@ -52,16 +54,18 @@ class AudioFilesRepository(private val context: Context) {
                 val idIdx = cursor.getColumnIndexOrThrow(cols.id)
                 val titleIdx = cursor.getColumnIndexOrThrow(cols.title)
                 val artistIdx = cursor.getColumnIndexOrThrow(cols.artist)
+                val albumIdx = cursor.getColumnIndexOrThrow(cols.album)
                 val durationIdx = cursor.getColumnIndexOrThrow(cols.duration)
 
                 val id = cursor.getLong(idIdx)
                 val title = cursor.getString(titleIdx)
                 val artist = cursor.getString(artistIdx)
+                val album = cursor.getString(albumIdx)
                 val duration = cursor.getInt(durationIdx)
 
                 val path = ContentUris.withAppendedId(collection, id).toString()
 
-                audioFiles.add(AudioFile(id, title, artist, duration, path))
+                audioFiles.add(AudioFile(id, title, artist, album,duration, path))
             }
         }
 

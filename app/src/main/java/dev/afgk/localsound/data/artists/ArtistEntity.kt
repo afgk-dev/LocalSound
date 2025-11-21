@@ -17,5 +17,7 @@ data class ArtistEntity(
     ) val id: Long,
 
     val name: String,
-    val pictureUri: String?
+    val pictureUri: String?,
+
+    val createdAt: Date
 )
