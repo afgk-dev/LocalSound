@@ -28,7 +28,7 @@ import dev.afgk.localsound.data.tracks.TracksDao
 @TypeConverters(Converters::class)
 
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun artistDao(): ArtistDao
-    abstract fun releasesDao(): ReleaseDao //Will do nothing for now
+    abstract fun artistsDao(): ArtistDao
+    abstract fun releaseDao(): ReleaseDao
     abstract fun tracksDao(): TracksDao
 }
