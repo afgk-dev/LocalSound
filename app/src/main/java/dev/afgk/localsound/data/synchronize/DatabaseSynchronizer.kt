@@ -69,17 +69,18 @@ class DatabaseSynchronizer (
     private suspend fun insertNewTracks(newFiles: List<AudioFile>) {
         database.withTransaction {
             newFiles.forEach { newFile ->
-                val artistName = newFile.artist ?: "Artista Desconhecido"
-                // Busca o ID do artista. Se não existir, insere e obtém o novo ID.
-                var artistId = artistDao.getArtistIdByName(artistName)
+                val artistName = newFile.artist
+                var artistId: Long? = null
 
-                if (artistId == null) {
+                    if (artistName != null) {
+                    // Busca o ID do artista. Se não existir, insere e obtém o novo ID.
+                    artistId = artistDao.getArtistIdByName(artistName)
                     val newArtist = ArtistEntity(id = 0, name = artistName, pictureUri = null)
                     artistDao.insert(newArtist)
                 }
 
                 val trackEntity = TrackEntity(
-                    id = 0, // Sinaliza para o Room gerar um novo ID.
+                    id = 0,
                     name = newFile.name,
                     duration = newFile.duration.toInt(),
                     uri = newFile.path,
