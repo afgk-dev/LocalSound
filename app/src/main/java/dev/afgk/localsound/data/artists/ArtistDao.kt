@@ -6,11 +6,6 @@ import dev.afgk.localsound.data.core.BaseDao
 
 @Dao
 interface ArtistDao: BaseDao<ArtistEntity> {
-
-    //Get all artists
-    @Query("SELECT * FROM artists")
-    suspend fun getAllArtists(): List<ArtistEntity>
-
     //Get all the artists by prefix
     @Query("SELECT * FROM artists WHERE name LIKE :name || '%'")
     suspend fun getArtistByName(name: String): List<ArtistEntity>
