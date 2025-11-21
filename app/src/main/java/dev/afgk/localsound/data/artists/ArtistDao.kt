@@ -12,5 +12,5 @@ interface ArtistDao: BaseDao<ArtistEntity> {
 
     //Get the id of the artist by the name
     @Query("SELECT id FROM artists WHERE name = :name")
-    suspend fun getArtistIdByName(name: String?): Long
+    suspend fun getArtistIdByName(name: String?): Long?
 }
