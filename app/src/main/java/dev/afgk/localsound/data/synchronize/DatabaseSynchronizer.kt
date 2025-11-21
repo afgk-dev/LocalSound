@@ -41,14 +41,14 @@ class DatabaseSynchronizer (
             )
             insertNewTracks(newFiles)
 
+            //Delete tracks that are not in the device and artists and releases without tracks
+            val trackIdsToDelete = tracksDao.getIdsOfTracksNotInStorage(urisFromDevice)
+            val artistsIdsToDelete = artistDao.getIdsOfArtistsWithoutTracks()
+            val releasesToDeleate = releaseDao.getIdsOfReleasesWithoutTracks()
+            deleteTracksNotInStorage(trackIdsToDelete)
+            deleteArtitsWithoutTracks(artistsIdsToDelete)
+            deleteReleasesWithoutTracks(releasesToDeleate)
 
-
-            val trackIdsToDelete = database.tracksDao().getIdsOfTracksNotInStorage(urisFromDevice)
-
-            Log.d("DatabaseSynchronizer", "Encontrados ${trackIdsToDelete.size} IDs de músicas para excluir.")
-            database.withTransaction {
-                database.tracksDao().deleteTracksByIds(trackIdsToDelete)
-            }
 
             Log.d("DatabaseSynchronizer", "Processo de sincronização finalizado.")
 
@@ -97,5 +97,32 @@ class DatabaseSynchronizer (
             }
         }
         Log.d("DatabaseSynchronizer", "${newFiles.size} novos arquivos inseridos com sucesso.")
+    }
+    private suspend fun deleteTracksNotInStorage(trackIds: List<Long>){
+        Log.d("DatabaseSynchronizer", "Encontrados ${trackIds.size} IDs de músicas para excluir.")
+        database.withTransaction {
+            val deletedTracks = tracksDao.getTracksByIds(trackIds)
+            deletedTracks.forEach {Log.d("DatabaseSynchronizer", "Excluindo track: ${it.toString()}") }
+
+            tracksDao.deleteTracksByIds(trackIds)
+        }
+    }
+    private suspend fun deleteArtitsWithoutTracks(artistsIds: List<Long>){
+        Log.d("DatabaseSynchronizer", "Encontrados ${artistsIds.size} IDs de artistas para excluir.")
+        database.withTransaction {
+            val deletedArtists = artistDao.getArtistsById(artistsIds)
+            deletedArtists.forEach {Log.d("DatabaseSynchronizer", "Excluindo artista: ${it.toString()}") }
+
+            artistDao.deleteArtitsByIds(artistsIds)
+        }
+    }
+    private suspend fun deleteReleasesWithoutTracks(releasesIds: List<Long>){
+        Log.d("DatabaseSynchronizer", "Encontrados ${releasesIds.size} IDs de releases para excluir.")
+        database.withTransaction {
+            val deletedReleases = releaseDao.getReleasesById(releasesIds)
+            deletedReleases.forEach {Log.d("DatabaseSynchronizer", "Excluindo release: ${it.toString()}") }
+
+            releaseDao.deleteReleasesByIds(releasesIds)
+        }
     }
 }
