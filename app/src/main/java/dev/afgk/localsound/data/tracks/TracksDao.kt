@@ -6,6 +6,10 @@ import dev.afgk.localsound.data.core.BaseDao
 
 @Dao
 interface TracksDao: BaseDao<TrackEntity> {
+    //Use that before deletion
+    @Query("SELECT * FROM tracks where id = (:ids)")
+    suspend fun getTracksByIds(ids: List<Long>): List<TrackEntity>
+
     //get a list of all tracks uris on db
     @Query("SELECT uri FROM tracks")
     suspend fun getAllUris(): List<String>
@@ -14,8 +18,7 @@ interface TracksDao: BaseDao<TrackEntity> {
     @Query("SELECT id FROM tracks WHERE uri NOT IN (:storageUris)")
     suspend fun getIdsOfTracksNotInStorage(storageUris: List<String>): List<Long>
 
-    //@Query("SELECT * FROM tracks WHERE id IN(id: List<Long>)
-    //Delete tracks by ids
+    //Delete by ids
     @Query("DELETE FROM tracks WHERE id IN (:ids)")
     suspend fun deleteTracksByIds(ids: List<Long>)
 }
