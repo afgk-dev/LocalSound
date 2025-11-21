@@ -1,6 +1,5 @@
 package dev.afgk.localsound.data.synchronize
 
-import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import dev.afgk.localsound.data.artists.ArtistDao
@@ -18,10 +17,9 @@ import java.util.Date
 
 
 class DatabaseSynchronizer (
-    private val context: Context,
+    private val mediaStoreRepo: AudioFilesRepository,
     private val database: AppDatabase){
 
-    private val mediaStoreRepo = AudioFilesRepository(context)
 
     // Get the DAOs
     private val tracksDao: TracksDao = database.tracksDao()
@@ -30,8 +28,7 @@ class DatabaseSynchronizer (
 
     // Synchronize the data
 
-        suspend fun sync() {
-
+    suspend fun sync() {
         // Ensure it will be made on an optimized thread
         withContext(Dispatchers.IO) {
             Log.d("DatabaseSynchronizer", "Starting sync process.")
@@ -40,8 +37,6 @@ class DatabaseSynchronizer (
             val urisFromDevice = filesFromDevice.map { it.path }
             val tracksFromDb = tracksDao.getAll()
             val urisInDb = tracksFromDb.map { it.uri }
-
-
 
             val newFiles = filesFromDevice.filter { it.path !in urisInDb }
 
