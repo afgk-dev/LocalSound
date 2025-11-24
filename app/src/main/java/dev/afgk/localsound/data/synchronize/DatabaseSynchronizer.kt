@@ -27,7 +27,7 @@ class DatabaseSynchronizer (
     suspend fun sync() {
         // Ensure it will be made on an optimized thread
         withContext(Dispatchers.IO) {
-            Log.d("DatabaseSynchronizer", "Starting sync process.")
+            Log.d("DatabaseSynchronizer", "Starting sync process")
 
             val tracksFromDevice = mediaStoreRepo.loadFiles()
             val urisFromDevice = tracksFromDevice.map { it.path }
@@ -37,92 +37,113 @@ class DatabaseSynchronizer (
 
             Log.d(
                 "DatabaseSynchronizer",
-                "Encontrados ${newFiles.size} novos arquivos para inserir."
+                "Encontrados ${newFiles.size} novos arquivos para inserir"
             )
             insertNewTracks(newFiles)
 
             //Delete tracks that are not in the device and artists and releases without tracks
-            val trackIdsToDelete = tracksDao.getIdsOfTracksNotInStorage(urisFromDevice)
-            val artistsIdsToDelete = artistDao.getIdsOfArtistsWithoutTracks()
-            val releasesToDeleate = releaseDao.getIdsOfReleasesWithoutTracks()
-            deleteTracksNotInStorage(trackIdsToDelete)
-            deleteArtitsWithoutTracks(artistsIdsToDelete)
-            deleteReleasesWithoutTracks(releasesToDeleate)
+            deleteTracksNotInStorage(urisFromDevice)
+            deleteArtistsWithoutTracks()
+            deleteReleasesWithoutTracks()
 
 
-            Log.d("DatabaseSynchronizer", "Processo de sincronização finalizado.")
+            Log.d("DatabaseSynchronizer", "Processo de sincronização finalizado")
 
         }
 
     }
     private suspend fun insertNewTracks(newFiles: List<AudioFile>) {
-        database.withTransaction {
-            //If newFiles i empty will not insert anything
-            newFiles.forEach { newFile ->
-                val artistName = newFile.artist
-                val releaseName = newFile.release
-                var artistId: Long? = null
-                var releaseId: Long? = null
+        if (newFiles.size > 0) {
+            database.withTransaction {
+                //If newFiles i empty will not insert anything
+                newFiles.forEach { newFile ->
+                    val artistName = newFile.artist
+                    val releaseName = newFile.release
+                    var artistId: Long? = null
+                    var releaseId: Long? = null
 
-                //If artistName is null, artistId on tracks will be null
-                if (artistName != null) {
-                    artistId = artistDao.getArtistIdByName(artistName)
-                    // Search for the artistId. If it doesn't find, it will be null
-                    if (artistId == null){
+                    //If artistName is null, artistId on tracks will be null
+                    if (artistName != null) {
+                        artistId = artistDao.getArtistIdByName(artistName)
+                        // Search for the artistId. If it doesn't find, it will be null
+                        if (artistId == null){
+                            // If id is null will add on database and get the new id
+                            val newArtist = ArtistEntity(id = 0, name = artistName, pictureUri = null, Date())
+                            artistId = artistDao.insert(newArtist)
+                        }
+                    }
+                    //If releaseName is null, releaseId on tracks will be null
+                    if (releaseName != null) {
                         // If id is null will add on database and get the new id
-                        val newArtist = ArtistEntity(id = 0, name = artistName, pictureUri = null, Date())
-                        artistId = artistDao.insert(newArtist)
+                        releaseId = releaseDao.getReleaseIdByName(releaseName)
+                        if(releaseId == null){
+                            val newRelease = ReleaseEntity(id = 0, name = releaseName, coverArtUri = null, Date())
+                            releaseId = releaseDao.insert(newRelease)
+                        }
                     }
-                }
-                //If releaseName is null, releaseId on tracks will be null
-                if (releaseName != null) {
-                    // If id is null will add on database and get the new id
-                    releaseId = releaseDao.getReleaseIdByName(releaseName)
-                    if(releaseId == null){
-                        val newRelease = ReleaseEntity(id = 0, name = releaseName, coverArtUri = null, Date())
-                        releaseId = releaseDao.insert(newRelease)
-                    }
-                }
-                
 
-                val trackEntity = TrackEntity(
-                    id = 0,
-                    name = newFile.name,
-                    duration = newFile.duration.toInt(),
-                    uri = newFile.path,
-                    artistId = artistId,
-                    releaseId = releaseId
-                )
-                tracksDao.insert(trackEntity)
+
+                    val trackEntity = TrackEntity(
+                        id = 0,
+                        name = newFile.name,
+                        duration = newFile.duration.toInt(),
+                        uri = newFile.path,
+                        artistId = artistId,
+                        releaseId = releaseId
+                    )
+                    tracksDao.insert(trackEntity)
+                }
+            }
+            Log.d("DatabaseSynchronizer", "${newFiles.size} novos arquivos inseridos com sucesso")
+        }
+        else {
+            Log.d("DatabaseSynchronizer", "Nenhum novo arquivo para inserir")
+        }
+    }
+    private suspend fun deleteTracksNotInStorage(urisFromDevice: List<String>){
+        val trackIds = tracksDao.getIdsOfTracksNotInStorage(urisFromDevice)
+
+        if(trackIds.size > 0) {
+            Log.d("DatabaseSynchronizer", "Encontrados ${trackIds.size} IDs de músicas para excluir")
+            database.withTransaction {
+                val deletedTracks = tracksDao.getTracksByIds(trackIds)
+                deletedTracks.forEach {Log.d("DatabaseSynchronizer", "Excluindo track: ${it.toString()}") }
+
+                tracksDao.deleteTracksByIds(trackIds)
+            }
+        } else {
+            Log.d("DatabaseSynchronizer", "Nenhuma track para excluir")
+        }
+    }
+    private suspend fun deleteArtistsWithoutTracks(){
+        val artistsIds = artistDao.getIdsOfArtistsWithoutTracks()
+
+        if (artistsIds.size > 0){
+            Log.d("DatabaseSynchronizer", "Encontrados ${artistsIds.size} IDs de artistas para excluir")
+            database.withTransaction {
+                val deletedArtists = artistDao.getArtistsById(artistsIds)
+                deletedArtists.forEach {Log.d("DatabaseSynchronizer", "Excluindo artista: ${it.toString()}") }
+
+                artistDao.deleteArtistsByIds(artistsIds)
+            }
+        } else {
+            Log.d("DatabaseSynchronizer", "Nenhum artista para excluir")
+        }
+    }
+    private suspend fun deleteReleasesWithoutTracks(){
+        val releasesIds = releaseDao.getIdsOfReleasesWithoutTracks()
+
+        if (releasesIds.size > 0){
+            Log.d("DatabaseSynchronizer", "Encontrados ${releasesIds.size} IDs de releases para excluir")
+            database.withTransaction {
+                val deletedReleases = releaseDao.getReleasesById(releasesIds)
+                deletedReleases.forEach {Log.d("DatabaseSynchronizer", "Excluindo release: ${it.toString()}") }
+
+                releaseDao.deleteReleasesByIds(releasesIds)
             }
         }
-        Log.d("DatabaseSynchronizer", "${newFiles.size} novos arquivos inseridos com sucesso.")
-    }
-    private suspend fun deleteTracksNotInStorage(trackIds: List<Long>){
-        Log.d("DatabaseSynchronizer", "Encontrados ${trackIds.size} IDs de músicas para excluir.")
-        database.withTransaction {
-            val deletedTracks = tracksDao.getTracksByIds(trackIds)
-            deletedTracks.forEach {Log.d("DatabaseSynchronizer", "Excluindo track: ${it.toString()}") }
-
-            tracksDao.deleteTracksByIds(trackIds)
-        }
-    }
-    private suspend fun deleteArtitsWithoutTracks(artistsIds: List<Long>){
-        Log.d("DatabaseSynchronizer", "Encontrados ${artistsIds.size} IDs de artistas para excluir.")
-        database.withTransaction {
-            val deletedArtists = artistDao.getArtistsById(artistsIds)
-            deletedArtists.forEach {Log.d("DatabaseSynchronizer", "Excluindo artista: ${it.toString()}") }
-
-            artistDao.deleteArtitsByIds(artistsIds)
-        }
-    }
-    private suspend fun deleteReleasesWithoutTracks(releasesIds: List<Long>){
-        Log.d("DatabaseSynchronizer", "Encontrados ${releasesIds.size} IDs de releases para excluir.")
-        database.withTransaction {
-            val deletedReleases = releaseDao.getReleasesById(releasesIds)
-            deletedReleases.forEach {Log.d("DatabaseSynchronizer", "Excluindo release: ${it.toString()}") }
-
-            releaseDao.deleteReleasesByIds(releasesIds)
+        else {
+            Log.d("DatabaseSynchronizer", "Nenhum release para excluir")
         }
     }
 }
