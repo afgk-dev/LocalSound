@@ -70,10 +70,13 @@ dependencies {
     // JSON serialization library, works with the Kotlin serialization plugin
     implementation(libs.kotlinx.serialization.json)
 
-    // Room dependecies
+    // Room dependencies
 
     implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx) // Support for Kotlin features
+    implementation(libs.androidx.room.ktx)
+
+    //Worker dependencies
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Symbol processing
     ksp(libs.androidx.room.compiler)
