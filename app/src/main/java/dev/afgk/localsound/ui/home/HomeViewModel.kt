@@ -17,21 +17,4 @@ class HomeViewModel(
         SharingStarted.Lazily,
         emptyList()
     )
-
-    fun filterTracks(query: String): List<TrackAndArtist> {
-        val currentList = tracksState.value
-
-        if (query.isBlank()) {
-            return currentList
-        }
-
-        return currentList.filter { item ->
-            val matchName = item.track.name.contains(query, ignoreCase = true)
-
-            val matchArtist = item.artist?.name?.contains(query, ignoreCase = true) == true
-
-            matchName || matchArtist
-        }
-    }
-
 }

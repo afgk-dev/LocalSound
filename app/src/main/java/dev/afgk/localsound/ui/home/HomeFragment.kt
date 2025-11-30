@@ -35,7 +35,10 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: HomeViewModel
 
     private val tracksListAdapter = TracksListAdapter(emptyList()) { track ->
+        // TODO: Lógica de tocar na lista principal
     }
+
+    private var searchJob: kotlinx.coroutines.Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,7 +75,7 @@ class HomeFragment : Fragment() {
                         try {
                             val novaMusica = TrackEntity(
                                 name = arquivo.name,
-                                duration = (arquivo.duration.toInt() / 1000),
+                                duration = (arquivo.duration.toInt() / 1000), // ms -> s convertion
                                 uri = arquivo.path,
                                 artistId = null,
                                 createdAt = Date()
@@ -86,7 +89,6 @@ class HomeFragment : Fragment() {
                 e.printStackTrace()
             }
         }
-        // ========================================================================
 
         viewModel = ViewModelProvider.create(
             this,
@@ -134,8 +136,51 @@ class HomeFragment : Fragment() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s.toString()
-                val filteredList = viewModel.filterTracks(query)
-                searchAdapter.updateData(filteredList)
+
+                searchJob?.cancel()
+
+                searchJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val listaResultado = mutableListOf<dev.afgk.localsound.data.tracks.TrackAndArtist>()
+
+                    if (query.isNotBlank()) {
+                        try {
+                            val db = MyApplication.appModule.database.openHelper.readableDatabase
+
+                            val sql = "SELECT * FROM tracks WHERE name LIKE ?"
+                            val args = arrayOf("%$query%")
+
+                            val cursor = db.query(sql, args)
+
+                            cursor.use { c ->
+                                val nameIdx = c.getColumnIndex("name")
+                                val durationIdx = c.getColumnIndex("duration")
+                                val uriIdx = c.getColumnIndex("uri")
+
+                                while (c.moveToNext()) {
+                                    if (nameIdx != -1) {
+                                        val track = dev.afgk.localsound.data.tracks.TrackEntity(
+                                            name = c.getString(nameIdx),
+                                            duration = c.getInt(durationIdx),
+                                            uri = c.getString(uriIdx),
+                                            artistId = null,
+                                            createdAt = java.util.Date()
+                                        )
+                                        listaResultado.add(
+                                            dev.afgk.localsound.data.tracks.TrackAndArtist(track, null)
+                                        )
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+
+                    // UPDATE UI
+                    kotlinx.coroutines.withContext(Dispatchers.Main) {
+                        searchAdapter.updateData(listaResultado)
+                    }
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {}
