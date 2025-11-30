@@ -8,8 +8,10 @@ import dev.afgk.localsound.data.tracks.TrackAndArtist
 import dev.afgk.localsound.databinding.TrackListItemBinding
 import dev.afgk.localsound.ui.helpers.StringFormatter
 
-class TracksListAdapter(var tracks: List<TrackAndArtist>) :
-    RecyclerView.Adapter<TracksListAdapter.ViewHolder>() {
+class TracksListAdapter(
+    var tracks: List<TrackAndArtist>,
+    private val onItemClick: (TrackAndArtist) -> Unit
+) : RecyclerView.Adapter<TracksListAdapter.ViewHolder>() {
 
     class ViewHolder(binding: TrackListItemBinding) : RecyclerView.ViewHolder(binding.root) {
         val trackName = binding.trackName
@@ -28,10 +30,16 @@ class TracksListAdapter(var tracks: List<TrackAndArtist>) :
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        val item = tracks[position]
         viewHolder.trackName.text = tracks[position].track.name
         viewHolder.trackArtistName.text = tracks[position].artist?.name ?: "Artista desconhecido"
         viewHolder.trackDuration.text =
             StringFormatter.fromSecondsToMinutesAndSeconds(tracks[position].track.duration)
+
+        viewHolder.itemView.setOnClickListener {
+            onItemClick(item)
+
+        }
     }
 
     override fun getItemCount() = tracks.size
