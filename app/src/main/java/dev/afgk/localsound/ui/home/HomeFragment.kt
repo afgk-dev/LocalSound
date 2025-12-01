@@ -29,7 +29,8 @@ class HomeFragment : Fragment() {
     private lateinit var navController: NavController
     private lateinit var viewModel: HomeViewModel
 
-    private val tracksListAdapter = TracksListAdapter(emptyList())
+    private lateinit var tracksListAdapter: TracksListAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,10 +57,15 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {
-                HomeViewModel(MyApplication.appModule.tracksRepository)
+                HomeViewModel(
+                    MyApplication.appModule.tracksRepository,
+                    MyApplication.appModule.queueRepository)
             }
         )[HomeViewModel::class]
 
+        tracksListAdapter = TracksListAdapter(emptyList()) { selectedTrack ->
+            viewModel.addToQueue(selectedTrack)
+        }
         binding.tracksList.layoutManager = LinearLayoutManager(requireContext())
         binding.tracksList.adapter = tracksListAdapter
 
