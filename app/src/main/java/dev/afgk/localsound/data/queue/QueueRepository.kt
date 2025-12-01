@@ -16,4 +16,8 @@ class QueueRepository(private val queueDao: QueueDao) {
         )
         queueDao.insert(queueItem)
     }
+
+    suspend fun removeFromQueue(queueItem: QueueTrackEntity){
+        queueDao.delete(queueItem)
+    }
 }
