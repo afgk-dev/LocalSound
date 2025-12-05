@@ -13,6 +13,6 @@ interface QueueDao : BaseDao<QueueTrackEntity> {
 
     @Transaction
     @Query("SELECT * FROM queue_tracks ORDER BY position ASC")
-    fun getQueueWithTracks(): Flow<List<QueueAndTrack>>
+    fun getQueueWithTracksAndArtists(): Flow<List<QueueWithTrackAndArtist>>
 
 }

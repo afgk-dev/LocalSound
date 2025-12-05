@@ -26,13 +26,7 @@ class HomeViewModel(
         val trackId = trackAndArtist.track.id
 
         viewModelScope.launch(Dispatchers.IO) {
-            try{
-                queueRepository.addToQueue(trackId)
-            } catch (e: android.database.sqlite.SQLiteConstraintException){
-                e.printStackTrace()
-            } catch (e: Exception){
-                e.printStackTrace()
-            }
+            queueRepository.addToQueue(trackId)
         }
     }
 }

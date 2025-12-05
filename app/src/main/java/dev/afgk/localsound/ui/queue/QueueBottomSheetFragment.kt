@@ -6,16 +6,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import dev.afgk.localsound.R
+import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.databinding.FragmentQueueBottomSheetBinding
+import dev.afgk.localsound.ui.helpers.viewModelFactory
+import dev.afgk.localsound.ui.queue.TracksOnQueueListAdapter
+import kotlinx.coroutines.launch
 
 class QueueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentQueueBottomSheetBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var viewModel: QueueViewModel
+    private lateinit var personalizedQueueAdapter: TracksOnQueueListAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,14 +46,11 @@ class QueueBottomSheetFragment : BottomSheetDialogFragment() {
 
             if (bottomSheet != null) {
                 val behavior = BottomSheetBehavior.from(bottomSheet)
-
                 behavior.isDraggable = true
                 behavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 behavior.skipCollapsed = false
-
                 val screenHeight = resources.displayMetrics.heightPixels
                 behavior.peekHeight = (screenHeight * 0.5).toInt()
-
                 behavior.maxHeight = (screenHeight * 0.5).toInt()
             }
         }
@@ -53,11 +60,33 @@ class QueueBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (savedInstanceState == null) {
-            childFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container_queue, QueueListFragment())
-                .replace(R.id.fragment_container_suggestions_for_queue, SuggestionsToQueueFragment())
-                .commit()
+        viewModel = ViewModelProvider(this, viewModelFactory {
+            QueueViewModel(
+                MyApplication.appModule.queueRepository
+            )
+        })[QueueViewModel::class.java]
+
+        setupPersonalizedQueueAdapter()
+
+        observeData()
+    }
+
+    private fun setupPersonalizedQueueAdapter() {
+        personalizedQueueAdapter = TracksOnQueueListAdapter { queueAndTrack ->
+            viewModel.removeFromQueue(queueAndTrack.queueTrackEntity)
+        }
+        binding.personalizedQueue.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = personalizedQueueAdapter
+        }
+    }
+
+
+    private fun observeData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.personalizedQueue.collect { queueItems ->
+                personalizedQueueAdapter.updateData(queueItems)
+            }
         }
     }
 

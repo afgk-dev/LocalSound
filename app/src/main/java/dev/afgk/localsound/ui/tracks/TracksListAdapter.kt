@@ -2,6 +2,7 @@ package dev.afgk.localsound.ui.tracks
 
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
@@ -38,6 +39,7 @@ class TracksListAdapter(
         viewHolder.trackArtistName.text = tracks[position].artist?.name ?: "Artista desconhecido"
         viewHolder.trackDuration.text =
             StringFormatter.fromSecondsToMinutesAndSeconds(tracks[position].track.duration)
+        viewHolder.trackDuration.visibility = View.VISIBLE
         viewHolder.button.setOnClickListener { view ->
             val popup = PopupMenu(view.context, view, Gravity.END, 0, R.style.PopupMenuOverlap)
             popup.menuInflater.inflate(R.menu.track_item_menu, popup.menu)

@@ -1,22 +1,22 @@
 package dev.afgk.localsound.ui.queue
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dev.afgk.localsound.data.queue.QueueAndTrack
-import dev.afgk.localsound.databinding.TrackOnQueueItemBinding
-import dev.afgk.localsound.ui.helpers.StringFormatter
+import dev.afgk.localsound.data.queue.QueueWithTrackAndArtist
+import dev.afgk.localsound.databinding.TrackListItemBinding
 
-class QueueListAdapter(
-    private val onRemoveClick: (QueueAndTrack) -> Unit
-) : RecyclerView.Adapter<QueueListAdapter.ViewHolder>() {
+class TracksOnQueueListAdapter(
+    private val onRemoveClick: (QueueWithTrackAndArtist) -> Unit
+) : RecyclerView.Adapter<TracksOnQueueListAdapter.ViewHolder>() {
 
-    private var queueItems: List<QueueAndTrack> = emptyList()
-    class ViewHolder(val binding: TrackOnQueueItemBinding) : RecyclerView.ViewHolder(binding.root)
+    private var queueItems: List<QueueWithTrackAndArtist> = emptyList()
+    class ViewHolder(val binding: TrackListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = TrackOnQueueItemBinding.inflate(
+        val binding = TrackListItemBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -26,8 +26,14 @@ class QueueListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = queueItems[position]
-        holder.binding.trackName.text = currentItem.track.name
-        holder.binding.trackArtistName.text = "Artista Desconhecido"
+        holder.binding.trackName.text = currentItem.trackAndArtist.track.name
+        holder.binding.trackArtistName.text = currentItem.trackAndArtist.artist?.name
+
+        holder.binding.trackDuration.visibility = View.GONE
+        holder.binding.button.visibility = View.GONE
+
+        holder.binding.removeFromQueue.visibility = View.VISIBLE
+        holder.binding.addToPlaylist.visibility = View.VISIBLE
 
         holder.binding.removeFromQueue.setOnClickListener {
             onRemoveClick(currentItem)
@@ -36,7 +42,7 @@ class QueueListAdapter(
 
     override fun getItemCount() = queueItems.size
 
-    fun updateData(newQueueItems: List<QueueAndTrack>) {
+    fun updateData(newQueueItems: List<QueueWithTrackAndArtist>) {
         val diffCallback = QueueDiffCallback(this.queueItems, newQueueItems)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         this.queueItems = newQueueItems
@@ -45,8 +51,8 @@ class QueueListAdapter(
 }
 
 class QueueDiffCallback(
-    private val oldList: List<QueueAndTrack>,
-    private val newList: List<QueueAndTrack>
+    private val oldList: List<QueueWithTrackAndArtist>,
+    private val newList: List<QueueWithTrackAndArtist>
 ) : DiffUtil.Callback() {
     override fun getOldListSize(): Int = oldList.size
     override fun getNewListSize(): Int = newList.size

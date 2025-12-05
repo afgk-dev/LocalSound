@@ -1,18 +1,15 @@
 package dev.afgk.localsound.data.queue
 
 class QueueRepository(private val queueDao: QueueDao) {
-    fun getQueue() = queueDao.getQueueWithTracks()
+    fun getQueue() = queueDao.getQueueWithTracksAndArtists()
 
     suspend fun addToQueue(trackId: Long){
         val lastPosition = queueDao.getLastPosition() ?: 0
         val newPosition = lastPosition + 1
 
         val queueItem = QueueTrackEntity(
-            id = 0,
             trackId = trackId,
-            position = newPosition,
-            isCustomQueue = true,
-            isCurrent = false
+            position = newPosition
         )
         queueDao.insert(queueItem)
     }
