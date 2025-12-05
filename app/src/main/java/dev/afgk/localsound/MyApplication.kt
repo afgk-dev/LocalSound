@@ -30,6 +30,7 @@ class MyApplication : Application() {
             )
             else MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
+        /*If unconmented it will sync automatically
         val request = OneTimeWorkRequest.Builder(DatabaseSyncWorker::class.java)
             .build()
 
@@ -37,7 +38,7 @@ class MyApplication : Application() {
             "database-sync",
             ExistingWorkPolicy.REPLACE,
             request
-        )
+        )*/
         Log.d("MyApplication", "DatabaseSyncWorker - Sincronização agendada")
     }
 }

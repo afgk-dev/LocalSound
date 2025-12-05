@@ -2,6 +2,7 @@ package dev.afgk.localsound.data.releases
 
 import androidx.room.Dao
 import androidx.room.Query
+import dev.afgk.localsound.data.artists.ArtistEntity
 import dev.afgk.localsound.data.core.BaseDao
 
 @Dao
@@ -18,9 +19,13 @@ interface ReleaseDao: BaseDao<ReleaseEntity> {
     @Query("SELECT * FROM artists WHERE id IN (:ids)")
     suspend fun getReleasesById(ids: List<Long>): List<ReleaseEntity>
 
-    //Return the ids of releases who have no tracks
-    @Query("SELECT id FROM releases WHERE id NOT IN (SELECT DISTINCT releaseId FROM tracks WHERE artistId IS NOT NULL)")
-    suspend fun getIdsOfReleasesWithoutTracks(): List<Long>
+    //Delete the releases who have no tracks
+    @Query("DELETE FROM releases WHERE id NOT IN (SELECT DISTINCT releaseId FROM tracks WHERE releaseId IS NOT NULL)")
+    suspend fun deleteReleasesWithoutTracks()
+
+    //Get releases who have no tracks
+    @Query("SELECT * FROM artists WHERE id NOT IN (SELECT DISTINCT releaseId FROM tracks WHERE releaseId IS NOT NULL)")
+    suspend fun getReleasesWithoutTracks(): List<ArtistEntity>
     //Delete by ids
     @Query("DELETE FROM releases WHERE id IN (:ids)")
     suspend fun deleteReleasesByIds(ids: List<Long>)
