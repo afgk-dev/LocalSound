@@ -2,7 +2,9 @@ package dev.afgk.localsound.data.tracks
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import dev.afgk.localsound.data.core.BaseDao
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TracksDao: BaseDao<TrackEntity> {
@@ -14,11 +16,19 @@ interface TracksDao: BaseDao<TrackEntity> {
     @Query("SELECT uri FROM tracks")
     suspend fun getAllUris(): List<String>
 
-    //Get the tracks ids who are in the db but not in the storage
-    @Query("SELECT id FROM tracks WHERE uri NOT IN (:storageUris)")
-    suspend fun getIdsOfTracksNotInStorage(storageUris: List<String>): List<Long>
+    //Delete the tracks that are not in the storage
+    @Query("Delete FROM tracks WHERE uri NOT IN (:storageUris)")
+    suspend fun deleteTracksNotInStorage(storageUris: List<String>)
+
+    //Get the tracks that will be deleted
+    @Query("SELECT * FROM tracks WHERE uri NOT IN (:storageUris)")
+    suspend fun getTracksNotInStorage(storageUris: List<String>): List<TrackEntity>
 
     //Delete by ids
     @Query("DELETE FROM tracks WHERE id IN (:ids)")
     suspend fun deleteTracksByIds(ids: List<Long>)
+
+    @Transaction
+    @Query("SELECT * FROM tracks")
+    fun getTracksWithArtist(): Flow<List<TrackAndArtist>>
 }
