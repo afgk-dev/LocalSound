@@ -8,6 +8,7 @@ import dev.afgk.localsound.MyApplication
 
 class DatabaseSyncWorker(
     private val appContext: Context,
+    private val synchronizer: DatabaseSynchronizer,
     private val params: WorkerParameters
 ): CoroutineWorker(appContext, params) {
 
@@ -15,11 +16,6 @@ class DatabaseSyncWorker(
         Log.d("DatabaseSyncWorker", "Worker iniciado para sincronizar o bd")
 
         val appModule = MyApplication.appModule
-
-        val synchronizer = DatabaseSynchronizer(
-            mediaStoreRepo = appModule.audioFilesRepository,
-            database = appModule.database
-        )
 
         return try {
             synchronizer.sync()

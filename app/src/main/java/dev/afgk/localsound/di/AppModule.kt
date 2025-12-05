@@ -33,6 +33,7 @@ class AppModuleImpl(
         TracksRepository(database.tracksDao())
     }
 
+    //pass this as a parameter to DatabaseSYncWorker
     val databaseSynchronizer: DatabaseSynchronizer by lazy {
         DatabaseSynchronizer(
             mediaStoreRepo = audioFilesRepository,
