@@ -14,10 +14,10 @@ import java.util.Date
 data class ReleaseEntity(
     @PrimaryKey(
         autoGenerate = true
-    ) val id: Long,
+    ) val id: Long = 0,
 
     val name: String,
     val coverArtUri: String?,
 
-    val createdAt: Date
+    val createdAt: Date = Date()
 )

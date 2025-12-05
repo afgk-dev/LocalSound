@@ -18,11 +18,12 @@ interface ArtistDao: BaseDao<ArtistEntity> {
     @Query("SELECT * FROM artists WHERE id IN (:ids)")
     suspend fun getArtistsById(ids: List<Long>): List<ArtistEntity>
 
-    //Return the ids of artists who have no tracks
-    @Query("SELECT id FROM artists WHERE id NOT IN (SELECT DISTINCT artistId FROM tracks WHERE artistId IS NOT NULL)")
-    suspend fun getIdsOfArtistsWithoutTracks(): List<Long>
+    //Delete the artists who have no tracks
+    @Query("DELETE FROM artists WHERE id NOT IN (SELECT DISTINCT artistId FROM tracks WHERE artistId IS NOT NULL)")
+    suspend fun deleteArtistsWithoutTracks()
 
-    //Delete by ids
-    @Query("DELETE FROM artists WHERE id IN (:ids)")
-    suspend fun deleteArtistsByIds(ids: List<Long>)
+    //Get artist who have no tracks
+    @Query("SELECT * FROM artists WHERE id NOT IN (SELECT DISTINCT artistId FROM tracks WHERE artistId IS NOT NULL)")
+    suspend fun getArtistsWithoutTracks(): List<ArtistEntity>
+
 }

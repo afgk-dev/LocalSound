@@ -18,10 +18,7 @@ class DatabaseSyncWorker(
 
         val synchronizer = DatabaseSynchronizer(
             mediaStoreRepo = appModule.audioFilesRepository,
-            database = appModule.database,
-            tracksDao = appModule.database.tracksDao(),
-            artistDao = appModule.database.artistsDao(),
-            releaseDao = appModule.database.releaseDao()
+            database = appModule.database
         )
 
         return try {

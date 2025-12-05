@@ -5,6 +5,7 @@ import androidx.room.Room
 import dev.afgk.localsound.data.audioFiles.AudioFilesRepository
 import dev.afgk.localsound.data.core.AppDatabase
 import dev.afgk.localsound.data.playlists.PlaylistRepository
+import dev.afgk.localsound.data.synchronize.DatabaseSynchronizer
 import dev.afgk.localsound.data.tracksfun.TracksRepository
 
 interface AppModule {
@@ -30,6 +31,13 @@ class AppModuleImpl(
 
     override val tracksRepository: TracksRepository by lazy {
         TracksRepository(database.tracksDao())
+    }
+
+    val databaseSynchronizer: DatabaseSynchronizer by lazy {
+        DatabaseSynchronizer(
+            mediaStoreRepo = audioFilesRepository,
+            database = database
+        )
     }
 
     override val playlistRepository: PlaylistRepository
