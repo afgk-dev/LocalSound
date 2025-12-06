@@ -6,19 +6,27 @@ import androidx.room.Relation
 import dev.afgk.localsound.data.tracks.TrackAndArtist
 import dev.afgk.localsound.data.tracks.TrackEntity
 
+data class PlaylistTrackWithDetails(
+    @Embedded
+    val connection: PlaylistTrackEntity,
+
+    @Relation(
+        entity = TrackEntity::class,
+        parentColumn = "trackId",
+        entityColumn = "id"
+    )
+    val track: TrackAndArtist
+)
+
 data class PlaylistAndTracksWithArtists(
     @Embedded val playlist: PlaylistEntity,
+
     @Relation(
         parentColumn = "id",
-        entity = TrackEntity::class,
-        entityColumn = "id",
-        associateBy = Junction(
-            value = PlaylistTrackEntity::class,
-            parentColumn = "playlistId",
-            entityColumn = "trackId"
-        )
+        entityColumn = "playlistId",
+        entity = PlaylistTrackEntity::class
     )
-    val tracks: List<TrackAndArtist>
+    val tracks: List<PlaylistTrackWithDetails>
 )
 
 data class PlaylistAndTracks(

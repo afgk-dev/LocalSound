@@ -10,7 +10,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.button.MaterialButton
 import dev.afgk.localsound.MyApplication
+import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.FragmentPlaylistBinding
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
@@ -68,6 +70,10 @@ class PlaylistFragment : Fragment() {
         playlistTracksList.layoutManager = LinearLayoutManager(requireContext())
         playlistTracksList.adapter = tracksListAdapter
 
+        binding.orderButton.setOnClickListener {
+            viewModel.toggleSorting()
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.playlistState.collect { playlist ->
                 when (playlist) {
@@ -79,13 +85,29 @@ class PlaylistFragment : Fragment() {
                         binding.playlistName.text = playlist.name
                         binding.playlistStats.text = playlist.stats
 
-                        tracksListAdapter.updateData(playlist.tracks)
+                        when (playlist.sorting) {
+                            PlaylistSorting.OLDER -> {
+                                binding.orderButton.text = "Mais antigas"
+                                (binding.orderButton as MaterialButton)
+                                    .setIconResource(R.drawable.outline_keyboard_arrow_down_24)
+                            }
+
+                            PlaylistSorting.RECENT -> {
+                                binding.orderButton.text = "Mais recentes"
+                                (binding.orderButton as MaterialButton)
+                                    .setIconResource(R.drawable.baseline_keyboard_arrow_up_24)
+                            }
+                        }
+
+                        tracksListAdapter.updateData(playlist.tracks.map { (connection, track) -> track })
                     }
+
                     is PlaylistViewModelUiState.PlaylistNotFound -> {
                         playlistSuccessGroup.visibility = View.GONE
                         playlistNotFound.visibility = View.VISIBLE
                         playlistLoading.visibility = View.GONE
                     }
+
                     is PlaylistViewModelUiState.Loading -> {
                         playlistSuccessGroup.visibility = View.GONE
                         playlistNotFound.visibility = View.GONE
