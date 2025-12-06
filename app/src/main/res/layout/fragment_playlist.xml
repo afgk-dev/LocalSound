@@ -8,12 +8,39 @@
     android:paddingTop="32dp"
     tools:context=".ui.playlists.PlaylistFragment">
 
+    <LinearLayout
+        android:id="@+id/topbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingVertical="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            style="?attr/materialIconButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:icon="@drawable/outline_arrow_back_24" />
+
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Pesquise na sua playlist..."
+            app:defaultMarginsEnabled="false"
+            app:hideNavigationIcon="true" />
+    </LinearLayout>
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/playlist_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/topbar">
 
         <ImageView
             android:id="@+id/playlist_cover"
@@ -84,7 +111,9 @@
         android:text="Mais recentes"
         app:icon="@drawable/outline_keyboard_arrow_down_24"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playlist_details" />
+        app:layout_constraintTop_toBottomOf="@id/playlist_details"
+
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playlist_tracks_list"
@@ -103,12 +132,11 @@
         android:id="@+id/playlist_loading"
         android:layout_width="128dp"
         android:layout_height="128dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone"
-    />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/playlist_not_found"
@@ -116,12 +144,11 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:layout_width="36dp"
