@@ -26,4 +26,8 @@ interface ArtistDao: BaseDao<ArtistEntity> {
     @Query("SELECT * FROM artists WHERE id NOT IN (SELECT DISTINCT artistId FROM tracks WHERE artistId IS NOT NULL)")
     suspend fun getArtistsWithoutTracks(): List<ArtistEntity>
 
+    //Get all artists names on db
+    @Query("SELECT * FROM artists WHERE name IN (:names)")
+    suspend fun getArtistsByNames(names: Set<String>): List<ArtistEntity>
+
 }
