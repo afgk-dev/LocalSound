@@ -1,7 +1,9 @@
 package dev.afgk.localsound.ui.home
 
 import android.os.Bundle
+import android.view.GestureDetector
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -19,6 +21,8 @@ import dev.afgk.localsound.ui.HomeViewModel
 import dev.afgk.localsound.ui.PermissionsUiState
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
+
+import dev.afgk.localsound.ui.queue.QueueBottomSheetFragment
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
 
@@ -29,7 +33,8 @@ class HomeFragment : Fragment() {
     private lateinit var navController: NavController
     private lateinit var viewModel: HomeViewModel
 
-    private val tracksListAdapter = TracksListAdapter(emptyList())
+    private lateinit var tracksListAdapter: TracksListAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,10 +61,15 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {
-                HomeViewModel(MyApplication.appModule.tracksRepository)
+                HomeViewModel(
+                    MyApplication.appModule.tracksRepository,
+                    MyApplication.appModule.queueRepository)
             }
         )[HomeViewModel::class]
 
+        tracksListAdapter = TracksListAdapter(emptyList()) { selectedTrack ->
+            viewModel.addToQueue(selectedTrack)
+        }
         binding.tracksList.layoutManager = LinearLayoutManager(requireContext())
         binding.tracksList.adapter = tracksListAdapter
 
@@ -78,5 +88,15 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
+        binding.queue.setOnClickListener {
+            val bottomSheetFragment = QueueBottomSheetFragment()
+            bottomSheetFragment.show(childFragmentManager, bottomSheetFragment.tag)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -22,11 +22,11 @@ import dev.afgk.localsound.data.tracks.TrackEntity
 data class QueueTrackEntity(
     @PrimaryKey(
         autoGenerate = true
-    ) val id: Long,
+    ) val id: Long = 0,
 
     val position: Int,
-    val isCustomQueue: Boolean,
-    val isCurrent: Boolean,
+    val isCustomQueue: Boolean = false,
+    val isCurrent: Boolean = false,
 
     val trackId: Long
 )
