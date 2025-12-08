@@ -72,9 +72,12 @@ class QueueBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun setupPersonalizedQueueAdapter() {
-        personalizedQueueAdapter = TracksOnQueueListAdapter { queueAndTrack ->
+        personalizedQueueAdapter = TracksOnQueueListAdapter(
+            isSuggestionTracks = false,
+            onRemoveClick = { queueAndTrack ->
             viewModel.removeFromQueue(queueAndTrack.queueTrackEntity)
-        }
+        }, onAddClick = {   }
+        )
         binding.personalizedQueue.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = personalizedQueueAdapter

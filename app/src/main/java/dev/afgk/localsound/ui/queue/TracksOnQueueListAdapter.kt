@@ -9,7 +9,9 @@ import dev.afgk.localsound.data.queue.QueueWithTrackAndArtist
 import dev.afgk.localsound.databinding.TrackListItemBinding
 
 class TracksOnQueueListAdapter(
-    private val onRemoveClick: (QueueWithTrackAndArtist) -> Unit
+    private  val isSuggestionTracks: Boolean = false,
+    private val onRemoveClick: (QueueWithTrackAndArtist) -> Unit,
+    private val onAddClick: (QueueWithTrackAndArtist) -> Unit
 ) : RecyclerView.Adapter<TracksOnQueueListAdapter.ViewHolder>() {
 
     private var queueItems: List<QueueWithTrackAndArtist> = emptyList()
@@ -26,17 +28,26 @@ class TracksOnQueueListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = queueItems[position]
+
         holder.binding.trackName.text = currentItem.trackAndArtist.track.name
         holder.binding.trackArtistName.text = currentItem.trackAndArtist.artist?.name
 
         holder.binding.trackDuration.visibility = View.GONE
         holder.binding.button.visibility = View.GONE
 
-        holder.binding.removeFromQueue.visibility = View.VISIBLE
-        holder.binding.addToPlaylist.visibility = View.VISIBLE
+        if(isSuggestionTracks) {
+            holder.binding.addToQueue.visibility = View.VISIBLE
 
-        holder.binding.removeFromQueue.setOnClickListener {
-            onRemoveClick(currentItem)
+            holder.binding.addToQueue.setOnClickListener {
+                onAddClick(currentItem)
+            }
+        } else{
+            holder.binding.removeFromQueue.visibility = View.VISIBLE
+            holder.binding.addToPlaylist.visibility = View.VISIBLE
+
+            holder.binding.removeFromQueue.setOnClickListener {
+                onRemoveClick(currentItem)
+            }
         }
     }
 
