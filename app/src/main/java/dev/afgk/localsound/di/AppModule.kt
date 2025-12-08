@@ -13,6 +13,7 @@ interface AppModule {
     val audioFilesRepository: AudioFilesRepository
     val playlistRepository: PlaylistRepository
     val tracksRepository: TracksRepository
+    val databaseSynchronizer: DatabaseSynchronizer
 }
 
 class AppModuleImpl(
@@ -33,8 +34,7 @@ class AppModuleImpl(
         TracksRepository(database.tracksDao())
     }
 
-    //pass this as a parameter to DatabaseSYncWorker
-    val databaseSynchronizer: DatabaseSynchronizer by lazy {
+    override val databaseSynchronizer: DatabaseSynchronizer by lazy {
         DatabaseSynchronizer(
             mediaStoreRepo = audioFilesRepository,
             database = database

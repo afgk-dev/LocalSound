@@ -8,14 +8,13 @@ import dev.afgk.localsound.MyApplication
 
 class DatabaseSyncWorker(
     private val appContext: Context,
-    private val synchronizer: DatabaseSynchronizer,
     private val params: WorkerParameters
 ): CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result{
         Log.d("DatabaseSyncWorker", "Worker iniciado para sincronizar o bd")
 
-        val appModule = MyApplication.appModule
+        val synchronizer = MyApplication.appModule.databaseSynchronizer
 
         return try {
             synchronizer.sync()

@@ -29,4 +29,8 @@ interface ReleaseDao: BaseDao<ReleaseEntity> {
     //Delete by ids
     @Query("DELETE FROM releases WHERE id IN (:ids)")
     suspend fun deleteReleasesByIds(ids: List<Long>)
+
+    //Get all releases name on db
+    @Query("SELECT * FROM releases WHERE name IN (:names)")
+    suspend fun getReleasesByNames(names: Set<String>): List<ReleaseEntity>
 }
