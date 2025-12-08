@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.coordinatorlayout)
     implementation(libs.androidx.fragment)
 
     // Navigation Dependencies

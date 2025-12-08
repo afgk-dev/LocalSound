@@ -1,127 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingHorizontal="16dp"
-    android:paddingTop="32dp"
     tools:context=".ui.playlists.PlaylistFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/playlist_details"
+        android:id="@+id/playlist_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="32dp"
+        android:visibility="visible">
 
-        <ImageView
-            android:id="@+id/playlist_cover"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:src="@drawable/baseline_play_arrow_24"
-            app:layout_constraintLeft_toLeftOf="parent"
+        <com.google.android.material.search.SearchBar
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Pesquise na sua playlist..."
+            app:defaultMarginsEnabled="false"
+            app:hideNavigationIcon="true"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/playlist_name_details"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/playlist_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_bar">
+
+            <ImageView
+                android:id="@+id/playlist_cover"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:src="@drawable/baseline_play_arrow_24"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/playlist_name_details"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toTopOf="@+id/playlist_actions"
+                app:layout_constraintLeft_toRightOf="@id/playlist_cover"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/playlist_name"
+                    style="?attr/textAppearanceTitleLargeEmphasized"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="músicas" />
+
+                <TextView
+                    android:id="@+id/playlist_stats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1.257 músicas, 81h30m" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/playlist_actions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/playlist_cover"
+                app:layout_constraintTop_toBottomOf="@id/playlist_name_details">
+
+                <Button
+                    style="?attr/materialIconButtonFilledStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/baseline_play_arrow_24" />
+
+                <Button
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/baseline_shuffle_24" />
+
+                <Button
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/outline_edit_24" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/sorting_button"
+            style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/playlist_actions"
-            app:layout_constraintLeft_toRightOf="@id/playlist_cover"
-            app:layout_constraintTop_toTopOf="parent">
+            android:text="Mais recentes"
+            app:icon="@drawable/outline_keyboard_arrow_down_24"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playlist_details"
 
-            <TextView
-                android:id="@+id/playlist_name"
-                style="?attr/textAppearanceTitleLargeEmphasized"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="músicas" />
+            />
 
-            <TextView
-                android:id="@+id/playlist_stats"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1.257 músicas, 81h30m" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/playlist_actions"
-            android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/playlist_tracks_list"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/playlist_cover"
-            app:layout_constraintTop_toBottomOf="@id/playlist_name_details">
-
-            <Button
-                style="?attr/materialIconButtonFilledStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/baseline_play_arrow_24" />
-
-            <Button
-                style="?attr/materialIconButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/baseline_shuffle_24" />
-
-            <Button
-                style="?attr/materialIconButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/outline_edit_24" />
-        </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@id/sorting_button" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/order_button"
-        style="?attr/borderlessButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mais recentes"
-        app:icon="@drawable/outline_keyboard_arrow_down_24"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playlist_details" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/playlist_tracks_list"
+    <LinearLayout
+        android:id="@+id/playlist_loading_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/order_button" />
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/playlist_success_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="playlist_tracks_list,order_button,playlist_details" />
-
-    <com.google.android.material.loadingindicator.LoadingIndicator
-        android:id="@+id/playlist_loading"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone"
-    />
+        <com.google.android.material.loadingindicator.LoadingIndicator
+            android:layout_width="128dp"
+            android:layout_height="128dp" />
+    </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/playlist_not_found"
+        android:id="@+id/playlist_not_found_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:layout_width="36dp"
@@ -135,4 +147,40 @@
             android:layout_height="wrap_content"
             android:text="Playlist não encontrada" />
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="Pesquise na sua playlist..."
+        app:layout_anchor="@id/search_bar">
+
+        <LinearLayout
+            android:id="@+id/no_search_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginBottom="16dp"
+                android:src="@drawable/baseline_search_off_24" />
+
+            <TextView
+                style="?attr/textAppearanceBody1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nenhum resultado encontrado" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/playlist_tracks_search_results"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:visibility="gone" />
+    </com.google.android.material.search.SearchView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
