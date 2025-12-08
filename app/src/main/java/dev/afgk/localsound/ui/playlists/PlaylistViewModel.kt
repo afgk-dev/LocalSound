@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dev.afgk.localsound.data.playlists.PlaylistRepository
 import dev.afgk.localsound.data.playlists.PlaylistTrackWithDetails
 import dev.afgk.localsound.ui.helpers.StringFormatter
+import dev.afgk.localsound.ui.helpers.debounce
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -19,6 +20,7 @@ sealed class PlaylistViewModelUiState() {
         val totalDuration: Int,
         val stats: String,
         val tracks: List<PlaylistTrackWithDetails>,
+        val searchedTracks: List<PlaylistTrackWithDetails>,
         val sorting: PlaylistSorting
     ) : PlaylistViewModelUiState()
 
@@ -35,12 +37,14 @@ class PlaylistViewModel(
     private val playlistRepository: PlaylistRepository
 ) : ViewModel() {
     private val sortingDir = MutableStateFlow(PlaylistSorting.RECENT)
+    private val search = MutableStateFlow<String>("")
 
     private val playlistFlow =
         combine(
             playlistRepository.getPlaylistTracks(playlistId),
-            sortingDir
-        ) { playlistResult, sorting ->
+            sortingDir,
+            search
+        ) { playlistResult, sorting, query ->
             if (playlistResult == null) return@combine PlaylistViewModelUiState.PlaylistNotFound
 
             val (playlist, tracks) = playlistResult
@@ -48,6 +52,16 @@ class PlaylistViewModel(
             val sortedTracks = when (sorting) {
                 PlaylistSorting.RECENT -> tracks.sortedByDescending { it.connection.createdAt }
                 PlaylistSorting.OLDER -> tracks.sortedBy { it.connection.createdAt }
+            }
+
+            val searchedTracks = when (query) {
+                "" -> listOf()
+                else -> sortedTracks.filter { (_, track) ->
+                    track.track.name.contains(query, true) || track.artist?.name?.contains(
+                        query,
+                        true
+                    ) ?: false
+                }
             }
 
             val totalTracksCount = tracks.size
@@ -62,6 +76,7 @@ class PlaylistViewModel(
                 totalDuration = totalDuration,
                 stats = stats,
                 tracks = sortedTracks,
+                searchedTracks = searchedTracks,
                 sorting = sorting
             )
         }
@@ -79,4 +94,7 @@ class PlaylistViewModel(
             PlaylistSorting.RECENT
         }
     }
+
+    fun search(query: String) =
+        debounce<String>(300L, viewModelScope) { text -> search.value = text }(query)
 }
