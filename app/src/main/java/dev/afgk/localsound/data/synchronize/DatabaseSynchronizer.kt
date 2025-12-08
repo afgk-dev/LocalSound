@@ -28,7 +28,7 @@ class DatabaseSynchronizer (
             val tracksFromDevice = mediaStoreRepo.loadFiles()
             val urisFromDevice = tracksFromDevice.map { it.path }
             val urisInDb = database.tracksDao().getAllUris().toSet()
-            //toSet() is much faster to verify if an element is in the list he is big O(1)on average
+
             val newFiles = tracksFromDevice.filter { it.path !in urisInDb}
 
             Log.d(
@@ -51,35 +51,48 @@ class DatabaseSynchronizer (
 
     }
     private suspend fun insertNewTracks(newFiles: List<AudioFile>) {
-        if (newFiles.isNotEmpty()) {
-            database.withTransaction {
+        if (newFiles.isEmpty()) {
+            Log.d("DatabaseSynchronizer", "Nenhum novo arquivo para inserir")
+            return
+        }
+
+        database.withTransaction {
+            val newArtistNames = newFiles.mapNotNull { it.artist }.toSet()
+            val newReleaseNames = newFiles.mapNotNull { it.release }.toSet()
+
+            val existingArtists = database.artistsDao().getArtistsByNames(newArtistNames)
+                .associateBy { it.name }
+
+            val artistsToInsert = newArtistNames
+                .filter { name -> !existingArtists.containsKey(name) }
+                .map { name -> ArtistEntity(name = name) }
+
+            val artistIdMap = existingArtists.mapValues { it.value.id }.toMutableMap()
+            if (artistsToInsert.isNotEmpty()) {
+                val newArtistIds = database.artistsDao().insert(*artistsToInsert.toTypedArray())
+                artistsToInsert.zip(newArtistIds).forEach { (artist, id) ->
+                    artistIdMap[artist.name] = id
+                }
+            }
+
+            val existingReleases = database.releaseDao().getReleasesByNames(newReleaseNames)
+                .associateBy { it.name }
+
+            val releasesToInsert = newReleaseNames
+                .filter { name -> !existingReleases.containsKey(name) }
+                .map { name -> ReleaseEntity(name = name) }
+
+
+            val releaseIdMap = existingReleases.mapValues { it.value.id }.toMutableMap()
+            if (releasesToInsert.isNotEmpty()) {
+                val newReleaseIds = database.releaseDao().insert(*releasesToInsert.toTypedArray())
+                releasesToInsert.zip(newReleaseIds).forEach { (release, id) ->
+                    releaseIdMap[release.name] = id
+                }
+
                 val tracksToInsert = newFiles.map { newFile ->
-                    val artistName = newFile.artist
-                    val releaseName = newFile.release
-                    var artistId: Long? = null
-                    var releaseId: Long? = null
-
-                    if (artistName != null) {
-                        artistId = database.artistsDao().getArtistIdByName(artistName)
-                        if (artistId == null){
-                            val newArtist = ArtistEntity(
-                                name = artistName,
-                                pictureUri = null
-                            )
-                            artistId = database.artistsDao().insert(newArtist)
-                        }
-                    }
-
-                    if (releaseName != null) {
-                        releaseId = database.releaseDao().getReleaseIdByName(releaseName)
-                        if(releaseId == null){
-                            val newRelease = ReleaseEntity(
-                                name = releaseName,
-                                coverArtUri = null
-                            )
-                            releaseId = database.releaseDao().insert(newRelease)
-                        }
-                    }
+                    val artistId = newFile.artist?.let { artistIdMap[it] }
+                    val releaseId = newFile.release?.let { releaseIdMap[it] }
 
                     TrackEntity(
                         name = newFile.name,
@@ -91,13 +104,11 @@ class DatabaseSynchronizer (
                 }
 
                 database.tracksDao().insert(*tracksToInsert.toTypedArray())
-                }
+            }
             Log.d("DatabaseSynchronizer", "${newFiles.size} novos arquivos inseridos com sucesso")
         }
-        else {
-            Log.d("DatabaseSynchronizer", "Nenhum novo arquivo para inserir")
-        }
     }
+
     private suspend fun deleteTracksNotInStorage(urisFromDevice: List<String>){
         val deletedTracks = database.tracksDao().getTracksNotInStorage(urisFromDevice)
         Log.d("DatabaseSynchronizer", "Encontrados ${deletedTracks.size} músicas para excluir")
