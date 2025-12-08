@@ -1,5 +1,6 @@
 package dev.afgk.localsound.ui.playlists
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.afgk.localsound.data.playlists.PlaylistRepository
@@ -19,6 +20,7 @@ sealed class PlaylistViewModelUiState() {
         val totalTracksCount: Int,
         val totalDuration: Int,
         val stats: String,
+        val coverUri: Uri?,
         val tracks: List<PlaylistTrackWithDetails>,
         val searchedTracks: List<PlaylistTrackWithDetails>,
         val sorting: PlaylistSorting
@@ -75,6 +77,7 @@ class PlaylistViewModel(
                 totalTracksCount = totalTracksCount,
                 totalDuration = totalDuration,
                 stats = stats,
+                coverUri = playlist.coverUri,
                 tracks = sortedTracks,
                 searchedTracks = searchedTracks,
                 sorting = sorting

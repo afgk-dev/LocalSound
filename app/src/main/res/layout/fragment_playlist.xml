@@ -27,16 +27,16 @@
             android:id="@+id/playlist_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+
+            android:paddingTop="32dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_bar">
 
-            <ImageView
+            <dev.afgk.localsound.ui.playlists.PlaylistCoverView
                 android:id="@+id/playlist_cover"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
-                android:src="@drawable/baseline_play_arrow_24"
-                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
@@ -97,12 +97,11 @@
             style="?attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
             android:text="Mais recentes"
             app:icon="@drawable/outline_keyboard_arrow_down_24"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/playlist_details"
-
-            />
+            app:layout_constraintTop_toBottomOf="@id/playlist_details" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/playlist_tracks_list"

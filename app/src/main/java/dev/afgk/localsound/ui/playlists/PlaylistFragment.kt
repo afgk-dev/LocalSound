@@ -98,6 +98,7 @@ class PlaylistFragment : Fragment() {
 
         binding.playlistName.text = playlist.name
         binding.playlistStats.text = playlist.stats
+        binding.playlistCover.setCoverUri(playlist.coverUri)
 
         tracksListAdapter.updateData(playlist.tracks.map { (_, track) -> track })
         tracksSearchResultsAdapter.updateData(playlist.searchedTracks.map { (_, track) -> track })

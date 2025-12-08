@@ -1,5 +1,6 @@
 package dev.afgk.localsound.ui.playlists
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.afgk.localsound.data.playlists.PlaylistRepository
@@ -11,7 +12,7 @@ import kotlinx.coroutines.launch
 data class PlaylistListItem(
     val id: Long,
     val name: String,
-    val coverUri: String?,
+    val coverUri: Uri?,
     val totalTracks: Int,
     val isTrackAdded: Boolean
 )

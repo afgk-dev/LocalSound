@@ -43,6 +43,8 @@ class PlaylistListAdapter(
         viewHolder.playlistTracksCount.text =
             "${playlistItem.totalTracks} música${if (playlistItem.totalTracks !== 1) "s" else ""}"
 
+        viewHolder.playlistCover.setCoverUri(playlistItem.coverUri)
+
         viewHolder.addToPlaylistButton.setOnClickListener { _ ->
             if (isTrackAdded) onRemoveClick(playlistItem)
             else onAddClick(playlistItem)

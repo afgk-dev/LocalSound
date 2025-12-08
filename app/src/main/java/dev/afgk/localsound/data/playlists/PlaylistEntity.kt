@@ -1,5 +1,6 @@
 package dev.afgk.localsound.data.playlists
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Date
@@ -14,7 +15,7 @@ data class PlaylistEntity(
     ) val id: Long = 0,
 
     val name: String,
-    val coverUri: String? = null,
+    val coverUri: Uri? = null,
 
     val createdAt: Date = Date()
 )
