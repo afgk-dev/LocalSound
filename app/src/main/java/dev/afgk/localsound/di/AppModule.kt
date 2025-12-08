@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import dev.afgk.localsound.data.audioFiles.AudioFilesRepository
 import dev.afgk.localsound.data.core.AppDatabase
-import dev.afgk.localsound.data.tracksfun.TracksRepository
+import dev.afgk.localsound.data.tracks.TracksRepository
 
 interface AppModule {
     val database: AppDatabase

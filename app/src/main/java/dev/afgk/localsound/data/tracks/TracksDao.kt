@@ -11,4 +11,10 @@ interface TracksDao : BaseDao<TrackEntity> {
     @Transaction
     @Query("SELECT * FROM tracks")
     fun getTracksWithArtist(): Flow<List<TrackAndArtist>>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM tracks 
+        WHERE name LIKE '%' || :query || '%' """)
+    fun searchTracks(query: String): Flow<List<TrackAndArtist>>
 }
