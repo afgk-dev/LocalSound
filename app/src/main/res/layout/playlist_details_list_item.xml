@@ -5,12 +5,11 @@
     android:gravity="center_vertical"
     android:paddingVertical="8dp">
 
-    <ImageView
+    <dev.afgk.localsound.ui.playlists.PlaylistCoverView
         android:id="@+id/playlist_cover"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="8dp"
-        android:src="@drawable/baseline_audiotrack_24" />
+        android:layout_marginEnd="8dp" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -33,5 +32,5 @@
             android:text="250 músicas"
             android:textColor="@color/md_theme_onSurfaceVariant" />
     </LinearLayout>
-    
+
 </LinearLayout>

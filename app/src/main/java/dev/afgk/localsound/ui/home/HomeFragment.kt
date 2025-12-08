@@ -64,7 +64,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.navigateToPlaylist.setOnClickListener { _ ->
-            navController.navigate("${NavigationRoutes.playlist}/${2L}")
+            navController.navigate("${NavigationRoutes.playlist}/${8L}")
         }
 
         binding.openBottomSheetModal.setOnClickListener { _ ->

@@ -1,9 +1,12 @@
 package dev.afgk.localsound.ui.playlists
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -53,6 +56,21 @@ class CreatePlaylistFragment : Fragment() {
         val playlistNameInputText = binding.playlistNameInput.text.toString()
         val firstTrackId = arguments?.getLong("trackId")!!
 
+        val pickMedia =
+            registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                if (uri != null) viewModel.setCoverUri(uri)
+            }
+
+        binding.cover.setOnPickerClick {
+            pickMedia.launch(
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+        }
+
+        Log.i(_TAG, requireContext().filesDir.path)
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { value ->
@@ -76,6 +94,7 @@ class CreatePlaylistFragment : Fragment() {
                     ) binding.playlistNameInput.setText(value.playlistName)
 
                     binding.playlistNameInputLayout.error = value.playlistNameInputError
+                    binding.cover.setCoverUri(value.playlistCoverUri)
                 }
             }
         }
@@ -90,7 +109,10 @@ class CreatePlaylistFragment : Fragment() {
         }
 
         binding.saveButton.setOnClickListener { _ ->
-            viewModel.create(firstTrackId)
+            viewModel.create(
+                firstTrackId = firstTrackId,
+                context = requireContext(),
+            )
         }
     }
 }

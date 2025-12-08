@@ -13,10 +13,12 @@ class PlaylistRepository(
 
     fun getPlaylists() = playlistsDao.getPlaylists()
 
+    suspend fun update(obj: PlaylistEntity) = playlistsDao.update(obj)
+
     suspend fun create(
         name: String,
         firstTrackId: Long? = null
-    ): Long = withContext(Dispatchers.IO) {
+    ): PlaylistEntity = withContext(Dispatchers.IO) {
         val playlist = PlaylistEntity(name = name)
         val insertedPlaylistId = playlistsDao.insert(playlist)
 
@@ -29,7 +31,7 @@ class PlaylistRepository(
             playlistTrackDao.insert(playlistTrack)
         }
 
-        return@withContext insertedPlaylistId
+        return@withContext playlist.copy(id = insertedPlaylistId)
     }
 
     suspend fun addToPlaylist(
