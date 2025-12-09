@@ -21,4 +21,7 @@ interface PlaylistsDao : BaseDao<PlaylistEntity> {
     @Transaction
     @Query("SELECT * FROM playlists")
     fun getPlaylists(): Flow<List<PlaylistAndTracks>>
+
+    @Query("DELETE FROM playlists WHERE id = :id")
+    fun delete(id: Long)
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7dbdbfe1b9c6b7d3014bc609ed417afb",
+    "identityHash": "c88f60d9cea4132154fa538b4bca228c",
     "entities": [
       {
         "tableName": "artists",
@@ -243,7 +243,7 @@
       },
       {
         "tableName": "playlists_tracks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`trackId` INTEGER NOT NULL, `playlistId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`trackId`, `playlistId`), FOREIGN KEY(`trackId`) REFERENCES `tracks`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`playlistId`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`trackId` INTEGER NOT NULL, `playlistId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`trackId`, `playlistId`), FOREIGN KEY(`trackId`) REFERENCES `tracks`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`playlistId`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "trackId",
@@ -274,7 +274,7 @@
         "foreignKeys": [
           {
             "table": "tracks",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "trackId"
@@ -285,7 +285,7 @@
           },
           {
             "table": "playlists",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "playlistId"
@@ -365,7 +365,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7dbdbfe1b9c6b7d3014bc609ed417afb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c88f60d9cea4132154fa538b4bca228c')"
     ]
   }
 }
