@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ff47283ec290bc52c2fd29cfc0746bd4",
+    "identityHash": "7dbdbfe1b9c6b7d3014bc609ed417afb",
     "entities": [
       {
         "tableName": "artists",
@@ -203,7 +203,7 @@
       },
       {
         "tableName": "playlists",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `coverUri` TEXT, `createdAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `coverUri` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -227,6 +227,11 @@
             "columnName": "createdAt",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -360,7 +365,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ff47283ec290bc52c2fd29cfc0746bd4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7dbdbfe1b9c6b7d3014bc609ed417afb')"
     ]
   }
 }

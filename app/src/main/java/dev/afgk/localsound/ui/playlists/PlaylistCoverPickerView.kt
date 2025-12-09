@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import dev.afgk.localsound.databinding.PlaylistCoverPickerBinding
 
 class PlaylistCoverPickerView @JvmOverloads constructor(
@@ -31,10 +32,11 @@ class PlaylistCoverPickerView @JvmOverloads constructor(
         }
     }
 
-    fun setCoverUri(uri: Uri?) {
+    fun setCoverUri(uri: Uri?, signature: String = uri.toString()) {
         if (uri != null) {
             Glide.with(this)
                 .load(uri)
+                .signature(ObjectKey(signature))
                 .into(binding.image)
 
             showImageState()

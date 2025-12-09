@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlaylistsDao : BaseDao<PlaylistEntity> {
+    @Query("SELECT * FROM playlists WHERE id = :id")
+    fun getMinimal(id: Long): Flow<PlaylistEntity>
+
     @Query("SELECT COUNT(*) FROM playlists")
     suspend fun getTotal(): Int
 

@@ -85,6 +85,7 @@
                     app:icon="@drawable/baseline_shuffle_24" />
 
                 <Button
+                    android:id="@+id/edit_button"
                     style="?attr/materialIconButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
