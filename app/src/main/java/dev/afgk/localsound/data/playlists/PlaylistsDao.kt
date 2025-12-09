@@ -1,0 +1,27 @@
+package dev.afgk.localsound.data.playlists
+
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Transaction
+import dev.afgk.localsound.data.core.BaseDao
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface PlaylistsDao : BaseDao<PlaylistEntity> {
+    @Query("SELECT * FROM playlists WHERE id = :id")
+    fun getMinimal(id: Long): Flow<PlaylistEntity>
+
+    @Query("SELECT COUNT(*) FROM playlists")
+    suspend fun getTotal(): Int
+
+    @Transaction
+    @Query("SELECT * FROM playlists WHERE id = :id")
+    fun getPlaylist(id: Long): Flow<PlaylistAndTracksWithArtists?>
+
+    @Transaction
+    @Query("SELECT * FROM playlists")
+    fun getPlaylists(): Flow<List<PlaylistAndTracks>>
+
+    @Query("DELETE FROM playlists WHERE id = :id")
+    fun delete(id: Long)
+}

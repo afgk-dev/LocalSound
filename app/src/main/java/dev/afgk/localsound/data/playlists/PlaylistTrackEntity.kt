@@ -2,34 +2,29 @@ package dev.afgk.localsound.data.playlists
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.PrimaryKey
 import dev.afgk.localsound.data.tracks.TrackEntity
+import java.util.Date
 
 @Entity(
     tableName = "playlists_tracks",
-    indices = [
-        Index(value = ["trackId"]),
-        Index(value = ["playlistId"])
-    ],
+    primaryKeys = ["trackId", "playlistId"],
     foreignKeys = [
         ForeignKey(
             entity = TrackEntity::class,
             parentColumns = ["id"],
-            childColumns = ["trackId"]
+            childColumns = ["trackId"],
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = PlaylistEntity::class,
             parentColumns = ["id"],
-            childColumns = ["playlistId"]
+            childColumns = ["playlistId"],
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class PlaylistTrackEntity(
-    @PrimaryKey(
-        autoGenerate = true
-    ) val id: Long,
-
     val trackId: Long,
     val playlistId: Long,
+    val createdAt: Date = Date()
 )

@@ -19,16 +19,20 @@ import dev.afgk.localsound.ui.HomeViewModel
 import dev.afgk.localsound.ui.PermissionsUiState
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
+import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
+    private val _TAG = "HomeFragment"
+
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var navController: NavController
     private lateinit var viewModel: HomeViewModel
 
+    private val playlistQuickActions = PlaylistQuickActionsBottomSheetModal(1L)
     private val tracksListAdapter = TracksListAdapter(emptyList())
 
     override fun onCreateView(
@@ -52,6 +56,23 @@ class HomeFragment : Fragment() {
         ) return navController.navigate(
             NavigationRoutes.onboarding._route
         )
+
+        binding.navigateToCreatePlaylist.setOnClickListener { _ ->
+            navController.navigate(
+                "${NavigationRoutes.createPlaylist}/${1L}"
+            )
+        }
+
+        binding.navigateToPlaylist.setOnClickListener { _ ->
+            navController.navigate("${NavigationRoutes.playlist}/${1L}")
+        }
+
+        binding.openBottomSheetModal.setOnClickListener { _ ->
+            playlistQuickActions.show(
+                requireActivity().supportFragmentManager,
+                _TAG
+            )
+        }
 
         viewModel = ViewModelProvider.create(
             this,

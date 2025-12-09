@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "03f427e648d526cc1df80270e2551365",
+    "identityHash": "c88f60d9cea4132154fa538b4bca228c",
     "entities": [
       {
         "tableName": "artists",
@@ -203,7 +203,7 @@
       },
       {
         "tableName": "playlists",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `coverUri` TEXT, `createdAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `coverUri` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -227,6 +227,11 @@
             "columnName": "createdAt",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -238,14 +243,8 @@
       },
       {
         "tableName": "playlists_tracks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `trackId` INTEGER NOT NULL, `playlistId` INTEGER NOT NULL, FOREIGN KEY(`trackId`) REFERENCES `tracks`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`playlistId`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`trackId` INTEGER NOT NULL, `playlistId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`trackId`, `playlistId`), FOREIGN KEY(`trackId`) REFERENCES `tracks`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`playlistId`) REFERENCES `playlists`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "trackId",
             "columnName": "trackId",
@@ -257,38 +256,25 @@
             "columnName": "playlistId",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "trackId",
+            "playlistId"
           ]
         },
-        "indices": [
-          {
-            "name": "index_playlists_tracks_trackId",
-            "unique": false,
-            "columnNames": [
-              "trackId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlists_tracks_trackId` ON `${TABLE_NAME}` (`trackId`)"
-          },
-          {
-            "name": "index_playlists_tracks_playlistId",
-            "unique": false,
-            "columnNames": [
-              "playlistId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_playlists_tracks_playlistId` ON `${TABLE_NAME}` (`playlistId`)"
-          }
-        ],
         "foreignKeys": [
           {
             "table": "tracks",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "trackId"
@@ -299,7 +285,7 @@
           },
           {
             "table": "playlists",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "playlistId"
@@ -379,7 +365,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '03f427e648d526cc1df80270e2551365')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c88f60d9cea4132154fa538b4bca228c')"
     ]
   }
 }

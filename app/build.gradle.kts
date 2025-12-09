@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.coordinatorlayout)
     implementation(libs.androidx.fragment)
 
     // Navigation Dependencies
@@ -77,6 +78,9 @@ dependencies {
     // Symbol processing
     ksp(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.room.compiler)
+
+    // Glide
+    implementation(libs.glide)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
