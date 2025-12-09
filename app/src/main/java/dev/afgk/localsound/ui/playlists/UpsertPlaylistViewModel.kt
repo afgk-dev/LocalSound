@@ -34,7 +34,7 @@ sealed class UpsertPlaylistUiState() {
         val name: String? = null,
 
         val errors: List<String> = listOf(),
-        val created: Boolean = false
+        val createdId: Long? = null
     ) : UpsertPlaylistUiState()
 
     data class Update(
@@ -43,9 +43,16 @@ sealed class UpsertPlaylistUiState() {
         val didCoverChange: Boolean = false,
 
         val errors: List<String> = listOf(),
-        val updated: Boolean = false
+        val updated: Boolean = false,
+        val deleted: Boolean = false
     ) : UpsertPlaylistUiState()
 }
+
+data class FeedbackUiState(
+    val updated: Boolean = false,
+    val deleted: Boolean = false,
+    val createdId: Long? = null
+)
 
 class UpsertPlaylistViewModel(
     private val playlistId: Long? = null,
@@ -55,16 +62,27 @@ class UpsertPlaylistViewModel(
 
     private var _name = MutableStateFlow<String?>(null)
     private var _coverUri = MutableStateFlow<Uri?>(null)
-    private var _upserted = MutableStateFlow(false)
+    private var _feedback = MutableStateFlow(FeedbackUiState())
+
 
     val uiState: Flow<UpsertPlaylistUiState> =
         combine(
             (flow { emit(UpsertPlaylistUiState.Loading) }) as Flow<UpsertPlaylistUiState>,
             _name,
             _coverUri,
-            _upserted
-        ) { _, name, coverUri, upserted ->
+            _feedback
+        ) { _, name, coverUri, feedback ->
             val errors = validate()
+
+            if (feedback.deleted)
+                return@combine UpsertPlaylistUiState.Update(
+                    name = name ?: "",
+                    coverUri = coverUri,
+                    didCoverChange = false,
+                    errors = errors,
+                    updated = feedback.updated,
+                    deleted = feedback.deleted
+                )
 
             if (playlistId != null)
                 return@combine playlistRepository.getMinimal(playlistId)
@@ -76,7 +94,8 @@ class UpsertPlaylistViewModel(
                             coverUri = notNullCoverUri,
                             didCoverChange = notNullCoverUri != playlist.coverUri,
                             errors = errors,
-                            updated = upserted
+                            updated = feedback.updated,
+                            deleted = feedback.deleted
                         )
                     }
                     .first()
@@ -85,7 +104,7 @@ class UpsertPlaylistViewModel(
                 name = name,
                 coverUri = coverUri,
                 errors = errors,
-                created = upserted
+                createdId = feedback.createdId
             )
         }
 
@@ -136,7 +155,7 @@ class UpsertPlaylistViewModel(
                 }
             }
 
-            _upserted.update { true }
+            _feedback.update { it.copy(createdId = playlist.id) }
         }
     }
 
@@ -171,7 +190,15 @@ class UpsertPlaylistViewModel(
                 )
             )
 
-            _upserted.update { true }
+            _feedback.update { it.copy(updated = true) }
+        }
+    }
+
+    fun delete(playlistId: Long) {
+        viewModelScope.launch {
+            playlistRepository.delete(playlistId)
+
+            _feedback.update { it.copy(deleted = true) }
         }
     }
 

@@ -12,12 +12,14 @@ import java.util.Date
         ForeignKey(
             entity = TrackEntity::class,
             parentColumns = ["id"],
-            childColumns = ["trackId"]
+            childColumns = ["trackId"],
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = PlaylistEntity::class,
             parentColumns = ["id"],
-            childColumns = ["playlistId"]
+            childColumns = ["playlistId"],
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )

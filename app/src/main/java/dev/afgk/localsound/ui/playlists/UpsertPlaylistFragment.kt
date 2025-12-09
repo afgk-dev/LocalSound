@@ -13,10 +13,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.databinding.FragmentUpsertPlaylistBinding
 import dev.afgk.localsound.ui.helpers.viewModelFactory
+import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -30,6 +32,8 @@ class UpsertPlaylistFragment : Fragment() {
     private lateinit var navController: NavController
 
     private var coverCacheSignature = Date().time.toString()
+
+    private lateinit var confirmDeletionModal: MaterialAlertDialogBuilder
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -81,6 +85,22 @@ class UpsertPlaylistFragment : Fragment() {
             )
         }
 
+        confirmDeletionModal = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Tem certeza?")
+            .setMessage("Ao continuar, você irá remover essa playlist e todas as músicas que estão nela.")
+            .setNegativeButton("Cancelar") { dialog, which -> dialog.dismiss() }
+            .setPositiveButton("Continuar") { dialog, which ->
+                if (playlistId == null) return@setPositiveButton
+
+                viewModel.delete(playlistId)
+
+                dialog.dismiss()
+            }
+
+        binding.deleteButton.setOnClickListener {
+            confirmDeletionModal.show()
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
@@ -101,15 +121,16 @@ class UpsertPlaylistFragment : Fragment() {
 
     fun create(state: UpsertPlaylistUiState.Create) {
         binding.title.text = "Crie sua playlist!"
+        binding.deleteButton.visibility = View.GONE
 
-        if (state.created) {
+        if (state.createdId != null) {
             Snackbar.make(
-                view!!,
+                requireView(),
                 "Playlist criada com sucesso",
                 Snackbar.LENGTH_SHORT
             ).show()
 
-            navController.popBackStack()
+            navController.navigate("${NavigationRoutes.playlist}/${state.createdId}")
         }
 
         binding.cover.setCoverUri(state.coverUri)
@@ -119,15 +140,26 @@ class UpsertPlaylistFragment : Fragment() {
 
     fun update(state: UpsertPlaylistUiState.Update) {
         binding.title.text = "Atualize sua playlist!"
+        binding.deleteButton.visibility = View.VISIBLE
 
         if (state.updated) {
             Snackbar.make(
-                view!!,
+                requireView(),
                 "Playlist atualizada com sucesso",
                 Snackbar.LENGTH_SHORT
             ).show()
 
             navController.popBackStack()
+        }
+
+        if (state.deleted) {
+            Snackbar.make(
+                requireView(),
+                "Playlist removida com sucesso",
+                Snackbar.LENGTH_SHORT
+            ).show()
+
+            navController.navigate(NavigationRoutes.home)
         }
 
         binding.cover.setCoverUri(

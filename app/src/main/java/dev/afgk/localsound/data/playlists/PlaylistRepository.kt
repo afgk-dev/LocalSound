@@ -54,4 +54,8 @@ class PlaylistRepository(
     ) = withContext(Dispatchers.IO) {
         playlistTrackDao.delete(PlaylistTrackEntity(trackId, playlistId))
     }
+
+    suspend fun delete(playlistId: Long) = withContext(Dispatchers.IO) {
+        playlistsDao.delete(playlistId)
+    }
 }
