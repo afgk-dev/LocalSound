@@ -6,11 +6,13 @@ import androidx.lifecycle.viewModelScope
 import dev.afgk.localsound.data.playlists.PlaylistRepository
 import dev.afgk.localsound.data.playlists.PlaylistTrackWithDetails
 import dev.afgk.localsound.ui.helpers.StringFormatter
-import dev.afgk.localsound.ui.helpers.debounce
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.stateIn
+import java.util.Date
 
 sealed class PlaylistViewModelUiState() {
     data object Loading : PlaylistViewModelUiState()
@@ -23,7 +25,8 @@ sealed class PlaylistViewModelUiState() {
         val coverUri: Uri?,
         val tracks: List<PlaylistTrackWithDetails>,
         val searchedTracks: List<PlaylistTrackWithDetails>,
-        val sorting: PlaylistSorting
+        val sorting: PlaylistSorting,
+        val updatedAt: Date? = null
     ) : PlaylistViewModelUiState()
 
     data object PlaylistNotFound : PlaylistViewModelUiState()
@@ -41,11 +44,12 @@ class PlaylistViewModel(
     private val sortingDir = MutableStateFlow(PlaylistSorting.RECENT)
     private val search = MutableStateFlow<String>("")
 
+    @OptIn(FlowPreview::class)
     private val playlistFlow =
         combine(
             playlistRepository.getPlaylistTracks(playlistId),
             sortingDir,
-            search
+            search.debounce(300L)
         ) { playlistResult, sorting, query ->
             if (playlistResult == null) return@combine PlaylistViewModelUiState.PlaylistNotFound
 
@@ -80,7 +84,8 @@ class PlaylistViewModel(
                 coverUri = playlist.coverUri,
                 tracks = sortedTracks,
                 searchedTracks = searchedTracks,
-                sorting = sorting
+                sorting = sorting,
+                updatedAt = playlist.updatedAt
             )
         }
 
@@ -98,6 +103,7 @@ class PlaylistViewModel(
         }
     }
 
-    fun search(query: String) =
-        debounce<String>(300L, viewModelScope) { text -> search.value = text }(query)
+    fun search(query: String) {
+        search.value = query
+    }
 }

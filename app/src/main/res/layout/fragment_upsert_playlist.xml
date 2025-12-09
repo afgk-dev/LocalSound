@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.playlists.CreatePlaylistFragment">
+    tools:context=".ui.playlists.UpsertPlaylistFragment">
 
     <TextView
         android:id="@+id/title"
@@ -51,4 +51,23 @@
         android:text="Salvar informações"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/playlistNameInputLayout" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/loaded"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="title,cover,playlistNameInputLayout,saveButton" />
+
+    <LinearLayout
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <com.google.android.material.loadingindicator.LoadingIndicator
+            android:layout_width="128dp"
+            android:layout_height="128dp" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

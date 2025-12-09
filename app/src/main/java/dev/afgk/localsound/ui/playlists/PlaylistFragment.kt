@@ -16,6 +16,7 @@ import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.FragmentPlaylistBinding
 import dev.afgk.localsound.ui.helpers.viewModelFactory
+import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
 
@@ -80,6 +81,10 @@ class PlaylistFragment : Fragment() {
             viewModel.search(text.toString())
         }
 
+        binding.editButton.setOnClickListener {
+            navController.navigate("${NavigationRoutes.updatePlaylist}/${playlistId}")
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.playlistState.collect { playlist ->
                 when (playlist) {
@@ -98,7 +103,10 @@ class PlaylistFragment : Fragment() {
 
         binding.playlistName.text = playlist.name
         binding.playlistStats.text = playlist.stats
-        binding.playlistCover.setCoverUri(playlist.coverUri)
+        binding.playlistCover.setCoverUri(
+            playlist.coverUri,
+            playlist.updatedAt?.time.toString()
+        )
 
         tracksListAdapter.updateData(playlist.tracks.map { (_, track) -> track })
         tracksSearchResultsAdapter.updateData(playlist.searchedTracks.map { (_, track) -> track })

@@ -9,6 +9,8 @@ class PlaylistRepository(
 ) {
     suspend fun getTotal() = playlistsDao.getTotal()
 
+    fun getMinimal(id: Long) = playlistsDao.getMinimal(id)
+
     fun getPlaylistTracks(id: Long) = playlistsDao.getPlaylist(id)
 
     fun getPlaylists() = playlistsDao.getPlaylists()
