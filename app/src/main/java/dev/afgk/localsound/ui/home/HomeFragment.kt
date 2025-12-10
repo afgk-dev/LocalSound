@@ -32,8 +32,6 @@ class HomeFragment : Fragment() {
 
     private lateinit var navController: NavController
     private lateinit var viewModel: HomeViewModel
-
-    private val playlistQuickActions = PlaylistQuickActionsBottomSheetModal(1L)
     private val tracksListAdapter = TracksListAdapter(emptyList())
     private val playlistCardAdapter = PlaylistCardItemAdapter(emptyList())
 
@@ -62,13 +60,6 @@ class HomeFragment : Fragment() {
         binding.navigateToCreatePlaylist.setOnClickListener { _ ->
             navController.navigate(
                 "${NavigationRoutes.createPlaylist}/${1L}"
-            )
-        }
-
-        binding.openBottomSheetModal.setOnClickListener { _ ->
-            playlistQuickActions.show(
-                requireActivity().supportFragmentManager,
-                _TAG
             )
         }
 
@@ -111,11 +102,13 @@ class HomeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.playlistsState.collect{ playlists ->
                     if (playlists.isEmpty()) {
-                        binding.openBottomSheetModal.visibility = View.VISIBLE
-                        binding.linearLayoutPlaylistCarrousel.visibility = View.GONE
+                        binding.navigateToCreatePlaylist.visibility = View.VISIBLE
+                        binding.playlistsCarousel.visibility = View.GONE
+                        binding.playlistListTitle.text = "Não há playlists"
                     } else {
-                        binding.openBottomSheetModal.visibility = View.GONE
-                        binding.linearLayoutPlaylistCarrousel.visibility = View.VISIBLE
+                        binding.navigateToCreatePlaylist.visibility = View.GONE
+                        binding.playlistsCarousel.visibility = View.VISIBLE
+                        binding.playlistListTitle.text = "Minhas Playlists"
                     }
                     playlistCardAdapter.updateData(playlists)
                 }
@@ -126,6 +119,5 @@ class HomeFragment : Fragment() {
         playlistCardAdapter.onItemClick = {playlistItem ->
             navController.navigate("${NavigationRoutes.playlist}/${playlistItem.playlist.id}")
         }
-        //TODO a card with the add button that will open the create playlist fragment, it will be in the place of openBottomSheetModal
     }
 }
