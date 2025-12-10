@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".ui.home.HomeFragment">
 
     <TextView
@@ -12,66 +13,64 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nenhuma música encontrada"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <!-- Botão Sequencial posicionado no canto superior direito -->
+    <Button
+        android:id="@+id/button_Sec"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sequencial"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Botão Aleatório posicionado à esquerda do botão Sequencial -->
     <Button
-        android:id="@+id/botao_ale"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/button_Ale"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="0dp"
+        android:layout_height="62dp"
+        android:layout_marginEnd="8dp"
         android:text="Aleatório"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tracks_list_title"
-        app:layout_constraintBottom_toBottomOf="@+id/tracks_list_title"
-        tools:layout_editor_absoluteX="151dp"
-        tools:layout_editor_absoluteY="146dp"/>
+        app:layout_constraintEnd_toStartOf="@+id/button_Sec"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/botao_sec"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="408dp"
-        android:text="Sequencial"
-        app:layout_constraintBottom_toBottomOf="@+id/tracks_list_title"
-        app:layout_constraintEnd_toStartOf="@+id/botao_ale"
-        app:layout_constraintTop_toTopOf="@+id/tracks_list_title"
-        app:layout_constraintVertical_bias="0.666"
-        tools:layout_editor_absoluteX="151dp"
-        tools:layout_editor_absoluteY="146dp"/>
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/tracks_list_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="tracks_list,tracks_list_title,botao_ale,botao_sec" />
-
+    <!-- Título posicionado à esquerda, ocupando o espaço até os botões -->
     <TextView
         android:id="@+id/tracks_list_title"
         style="?attr/textAppearanceTitleLargeEmphasized"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="280dp"
-        android:layout_marginTop="292dp"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
+        android:layout_marginEnd="16dp"
         android:text="Suas músicas"
+        app:layout_constraintBottom_toBottomOf="@+id/button_Ale"
+        app:layout_constraintEnd_toStartOf="@+id/button_Ale"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/button_Ale" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tracks_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingHorizontal="16dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tracks_list_title"
-        app:layout_constraintVertical_bias="0.0" />
+        tools:listitem="@layout/track_list_item" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/tracks_list_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="tracks_list,tracks_list_title,button_Ale,button_Sec"
+        tools:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -99,12 +99,13 @@ class HomeFragment : Fragment() {
             }
         }
 
-        binding.botaoSec.setOnClickListener {
-            queueManager.setShuffleMode(false)
+        // Logic moved to your buttons
+        binding.buttonSec.setOnClickListener {
+            queueManager.setShuffleMode(false) // Sequential
         }
 
-        binding.botaoAle.setOnClickListener {
-            queueManager.setShuffleMode(true)
+        binding.buttonAle.setOnClickListener {
+            queueManager.setShuffleMode(true) // Shuffle
         }
     }
 
