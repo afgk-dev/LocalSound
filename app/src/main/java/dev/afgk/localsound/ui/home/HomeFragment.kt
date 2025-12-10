@@ -21,6 +21,7 @@ import dev.afgk.localsound.ui.PermissionsUiState
 import dev.afgk.localsound.ui.PlayerViewModel
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
+import dev.afgk.localsound.ui.playlists.PlaylistCardItemAdapter
 import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
@@ -40,7 +41,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private val playlistQuickActions = PlaylistQuickActionsBottomSheetModal(1L)
     private val tracksListAdapter = TracksListAdapter(emptyList()) {
         playerViewModel.playTrack(it.track)
     }
@@ -74,17 +74,12 @@ class HomeFragment : Fragment() {
             )
         }
 
-        binding.openBottomSheetModal.setOnClickListener { _ ->
-            playlistQuickActions.show(
-                requireActivity().supportFragmentManager,
-                _TAG
-            )
-        }
-
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {
-                HomeViewModel(MyApplication.appModule.tracksRepository)
+                HomeViewModel(
+                    MyApplication.appModule.tracksRepository,
+                    MyApplication.appModule.playlistRepository)
             }
         )[HomeViewModel::class]
 
@@ -118,11 +113,13 @@ class HomeFragment : Fragment() {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.playlistsState.collect{ playlists ->
                     if (playlists.isEmpty()) {
-                        binding.openBottomSheetModal.visibility = View.VISIBLE
-                        binding.linearLayoutPlaylistCarrousel.visibility = View.GONE
+                        binding.navigateToCreatePlaylist.visibility = View.VISIBLE
+                        binding.playlistsCarousel.visibility = View.GONE
+                        binding.playlistListTitle.text = "Não há playlists"
                     } else {
-                        binding.openBottomSheetModal.visibility = View.GONE
-                        binding.linearLayoutPlaylistCarrousel.visibility = View.VISIBLE
+                        binding.navigateToCreatePlaylist.visibility = View.GONE
+                        binding.playlistsCarousel.visibility = View.VISIBLE
+                        binding.playlistListTitle.text = "Minhas Playlists"
                     }
                     playlistCardAdapter.updateData(playlists)
                 }
@@ -133,6 +130,5 @@ class HomeFragment : Fragment() {
         playlistCardAdapter.onItemClick = {playlistItem ->
             navController.navigate("${NavigationRoutes.playlist}/${playlistItem.playlist.id}")
         }
-        //TODO a card with the add button that will open the create playlist fragment, it will be in the place of openBottomSheetModal
     }
 }
