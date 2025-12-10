@@ -25,6 +25,7 @@
                 android:layout_height="150dp"/>
             <TextView
                 style="@style/TextAppearance.Material3.BodyLarge"
+                android:id="@+id/playlist_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="playlist"
@@ -34,6 +35,7 @@
                 app:layout_constraintStart_toStartOf="parent"/>
             <TextView
                 style="@style/TextAppearance.Material3.BodySmall"
+                android:id="@+id/playlist_total_tracks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="250 músicas"

@@ -44,6 +44,7 @@ class HomeFragment : Fragment() {
     private val tracksListAdapter = TracksListAdapter(emptyList()) {
         playerViewModel.playTrack(it.track)
     }
+    private val playlistCardAdapter = PlaylistCardItemAdapter(emptyList())
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,14 +86,6 @@ class HomeFragment : Fragment() {
             )
         }
 
-        binding.navigateToPlaylist.setOnClickListener { _ ->
-            navController.navigate("${NavigationRoutes.playlist}/${1}")
-        }
-
-        binding.openSync.setOnClickListener {
-            navController.navigate(NavigationRoutes.onboarding.syncTracks)
-        }
-
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {
@@ -118,5 +111,28 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
+        binding.playlistsCarousel.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        binding.playlistsCarousel.adapter = playlistCardAdapter
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.playlistsState.collect{ playlists ->
+                    if (playlists.isEmpty()) {
+                        binding.openBottomSheetModal.visibility = View.VISIBLE
+                        binding.linearLayoutPlaylistCarrousel.visibility = View.GONE
+                    } else {
+                        binding.openBottomSheetModal.visibility = View.GONE
+                        binding.linearLayoutPlaylistCarrousel.visibility = View.VISIBLE
+                    }
+                    playlistCardAdapter.updateData(playlists)
+                }
+            }
+        }
+
     }
 }
