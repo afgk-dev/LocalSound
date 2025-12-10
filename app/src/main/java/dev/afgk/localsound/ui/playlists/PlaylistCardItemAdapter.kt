@@ -10,6 +10,7 @@ import dev.afgk.localsound.databinding.PlaylistCardItemBinding
 class PlaylistCardItemAdapter(var playlists: List<PlaylistAndTracks>) :
     RecyclerView.Adapter<PlaylistCardItemAdapter.ViewHolder>() {
 
+    var onItemClick: ((PlaylistAndTracks) -> Unit)? = null
     class ViewHolder(binding: PlaylistCardItemBinding): RecyclerView.ViewHolder(binding.root){
         val coverArt = binding.playlistCover
         val playlistName = binding.playlistName
@@ -27,10 +28,13 @@ class PlaylistCardItemAdapter(var playlists: List<PlaylistAndTracks>) :
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-
         viewHolder.coverArt.setCoverUri(playlists[position].playlist.coverUri)
         viewHolder.playlistName.text = playlists[position].playlist.name
         viewHolder.playlistTotalTracks.text = "${playlists[position].tracks.size} música${if (playlists[position].tracks.size !== 1) "s" else ""}"
+
+        viewHolder.itemView.setOnClickListener {
+            onItemClick?.invoke(playlists[position])
+        }
     }
 
     override fun getItemCount() = playlists.size
