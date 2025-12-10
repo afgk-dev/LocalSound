@@ -6,6 +6,55 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
+    <com.google.android.material.search.SearchBar
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Pesquise na sua playlist..."
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        app:defaultMarginsEnabled="false"
+        app:hideNavigationIcon="true"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/linear_layout_playlist_carrousel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingTop="32dp"
+        app:layout_constraintTop_toBottomOf="@id/search_bar"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            style="@style/TextAppearance.Material3.TitleLarge.Emphasized"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Minhas Playlists"
+            android:textColor="@color/md_theme_onSurface"
+            android:layout_marginBottom="8dp"
+            android:paddingHorizontal="16dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/playlists_carousel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+        <!--TODO Make this button visible only when there is no playlist-->
+        <Button
+            android:id="@+id/navigateToCreatePlaylist"
+            style="@style/Widget.Material3.Button.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="Criar playlist"
+            app:icon='@drawable/baseline_audiotrack_24' />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/text_no_musics"
         style="?attr/textAppearanceBodyLarge"
@@ -21,58 +70,34 @@
         android:id="@+id/tracks_list_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_tags="tracks_list,tracks_list_title" />
-
-    <TextView
-        android:id="@+id/tracks_list_title"
-        style="?attr/textAppearanceTitleLargeEmphasized"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
-        android:text="Suas músicas"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tracks_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tracks_list_title" />
+        android:visibility="visible"
+        app:constraint_referenced_ids="search_bar, linear_layout_playlist_carrousel, linear_layout_tracks_list" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/linear_layout_tracks_list"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tracks_list">
+        android:layout_marginTop="8dp"
+        android:paddingTop="32dp"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toBottomOf="@id/linear_layout_playlist_carrousel"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:id="@+id/navigateToCreatePlaylist"
-            style="@style/Widget.Material3.Button.Icon"
+        <TextView
+            android:id="@+id/tracks_list_title"
+            style="?attr/textAppearanceTitleLargeEmphasized"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:text="Criar playlist"
-            app:icon='@drawable/baseline_audiotrack_24' />
+            android:text="Suas músicas"
+            android:textColor="@color/md_theme_onSurface"/>
 
-        <Button
-            android:id="@+id/navigateToPlaylist"
-            style="@style/Widget.Material3.Button.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:text="Ir para playlist"
-            app:icon='@drawable/baseline_audiotrack_24' />
-
-
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tracks_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
-
+    <!--TODO excluir button-->
     <Button
         android:id="@+id/openBottomSheetModal"
         style="@style/Widget.Material3.Button.Icon"

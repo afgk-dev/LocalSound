@@ -63,9 +63,10 @@ class HomeFragment : Fragment() {
             )
         }
 
-        binding.navigateToPlaylist.setOnClickListener { _ ->
+       /*TODO excluí um botão de navegar até a playlist
+       binding.navigateToPlaylist.setOnClickListener { _ ->
             navController.navigate("${NavigationRoutes.playlist}/${1L}")
-        }
+        }*/
 
         binding.openBottomSheetModal.setOnClickListener { _ ->
             playlistQuickActions.show(
