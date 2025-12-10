@@ -74,11 +74,6 @@ class HomeFragment : Fragment() {
             )
         }
 
-       /*TODO excluí um botão de navegar até a playlist
-       binding.navigateToPlaylist.setOnClickListener { _ ->
-            navController.navigate("${NavigationRoutes.playlist}/${1L}")
-        }*/
-
         binding.openBottomSheetModal.setOnClickListener { _ ->
             playlistQuickActions.show(
                 requireActivity().supportFragmentManager,
@@ -134,5 +129,10 @@ class HomeFragment : Fragment() {
             }
         }
 
+        //Open the FragmentPlaylist of the selected playlist
+        playlistCardAdapter.onItemClick = {playlistItem ->
+            navController.navigate("${NavigationRoutes.playlist}/${playlistItem.playlist.id}")
+        }
+        //TODO a card with the add button that will open the create playlist fragment, it will be in the place of openBottomSheetModal
     }
 }
