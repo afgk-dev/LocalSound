@@ -19,6 +19,7 @@ import dev.afgk.localsound.ui.HomeViewModel
 import dev.afgk.localsound.ui.PermissionsUiState
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
+import dev.afgk.localsound.ui.playlists.PlaylistCardItemAdapter
 import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
@@ -34,6 +35,7 @@ class HomeFragment : Fragment() {
 
     private val playlistQuickActions = PlaylistQuickActionsBottomSheetModal(1L)
     private val tracksListAdapter = TracksListAdapter(emptyList())
+    private val playlistCardAdapter = PlaylistCardItemAdapter(emptyList())
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -78,7 +80,9 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {
-                HomeViewModel(MyApplication.appModule.tracksRepository)
+                HomeViewModel(
+                    MyApplication.appModule.tracksRepository,
+                    MyApplication.appModule.playlistRepository)
             }
         )[HomeViewModel::class]
 
@@ -100,5 +104,28 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
+        binding.playlistsCarousel.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        binding.playlistsCarousel.adapter = playlistCardAdapter
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.playlistsState.collect{ playlists ->
+                    if (playlists.isEmpty()) {
+                        binding.openBottomSheetModal.visibility = View.VISIBLE
+                        binding.linearLayoutPlaylistCarrousel.visibility = View.GONE
+                    } else {
+                        binding.openBottomSheetModal.visibility = View.GONE
+                        binding.linearLayoutPlaylistCarrousel.visibility = View.VISIBLE
+                    }
+                    playlistCardAdapter.updateData(playlists)
+                }
+            }
+        }
+
     }
 }
