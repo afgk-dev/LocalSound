@@ -1,0 +1,117 @@
+package dev.afgk.localsound.ui.home
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import dev.afgk.localsound.MyApplication
+import dev.afgk.localsound.data.audioFiles.AudioFile
+import dev.afgk.localsound.data.queue.QueueManager
+import dev.afgk.localsound.data.tracks.TrackAndArtist
+import dev.afgk.localsound.databinding.FragmentHomeBinding
+import dev.afgk.localsound.ui.Ability
+import dev.afgk.localsound.ui.HomeViewModel
+import dev.afgk.localsound.ui.PermissionsUiState
+import dev.afgk.localsound.ui.helpers.viewModelFactory
+import dev.afgk.localsound.ui.navigation.NavigationRoutes
+import dev.afgk.localsound.ui.tracks.TracksListAdapter
+import kotlinx.coroutines.launch
+
+class HomeFragment : Fragment() {
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var navController: NavController
+    private lateinit var viewModel: HomeViewModel
+    private lateinit var queueManager: QueueManager
+
+    private val tracksListAdapter = TracksListAdapter(emptyList()) { track ->
+        val trackIndex = viewModel.tracksState.value.indexOf(track)
+        if (trackIndex != -1) {
+            queueManager.playTrack(trackIndex)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        navController = findNavController()
+        queueManager = QueueManager(requireContext())
+
+        if (!PermissionsUiState.can(
+                Ability.READ_AUDIO,
+                requireContext()
+            )
+        ) return navController.navigate(
+            NavigationRoutes.onboarding._route
+        )
+
+        viewModel = ViewModelProvider(
+            this,
+            viewModelFactory {
+                HomeViewModel(MyApplication.appModule.tracksRepository)
+            }
+        )[HomeViewModel::class.java]
+
+        binding.tracksList.layoutManager = LinearLayoutManager(requireContext())
+        binding.tracksList.adapter = tracksListAdapter
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.tracksState.collect { tracks ->
+                    if (tracks.isEmpty()) {
+                        binding.textNoMusics.visibility = View.VISIBLE
+                        binding.tracksListGroup.visibility = View.GONE
+                    } else {
+                        binding.textNoMusics.visibility = View.GONE
+                        binding.tracksListGroup.visibility = View.VISIBLE
+                        val audioFiles = tracks.map { trackAndArtist ->
+                            AudioFile(
+                                id = trackAndArtist.track.id,
+                                name = trackAndArtist.track.name,
+                                artist = trackAndArtist.artist?.name,
+                                duration = trackAndArtist.track.duration,
+                                path = trackAndArtist.track.uri
+                            )
+                        }
+                        queueManager.setTracks(audioFiles)
+                    }
+
+                    tracksListAdapter.updateData(tracks)
+                }
+            }
+        }
+
+        // Logic moved to your buttons
+        binding.buttonSec.setOnClickListener {
+            queueManager.setShuffleMode(false) // Sequential
+        }
+
+        binding.buttonAle.setOnClickListener {
+            queueManager.setShuffleMode(true) // Shuffle
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        queueManager.release()
+        _binding = null
+    }
+}
