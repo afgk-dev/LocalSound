@@ -19,6 +19,7 @@ import dev.afgk.localsound.ui.HomeViewModel
 import dev.afgk.localsound.ui.PermissionsUiState
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
+import dev.afgk.localsound.ui.playlists.PlaylistCardItemAdapter
 import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
@@ -31,9 +32,8 @@ class HomeFragment : Fragment() {
 
     private lateinit var navController: NavController
     private lateinit var viewModel: HomeViewModel
-
-    private val playlistQuickActions = PlaylistQuickActionsBottomSheetModal(1L)
     private val tracksListAdapter = TracksListAdapter(emptyList())
+    private val playlistCardAdapter = PlaylistCardItemAdapter(emptyList())
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,21 +63,12 @@ class HomeFragment : Fragment() {
             )
         }
 
-        binding.navigateToPlaylist.setOnClickListener { _ ->
-            navController.navigate("${NavigationRoutes.playlist}/${1L}")
-        }
-
-        binding.openBottomSheetModal.setOnClickListener { _ ->
-            playlistQuickActions.show(
-                requireActivity().supportFragmentManager,
-                _TAG
-            )
-        }
-
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {
-                HomeViewModel(MyApplication.appModule.tracksRepository)
+                HomeViewModel(
+                    MyApplication.appModule.tracksRepository,
+                    MyApplication.appModule.playlistRepository)
             }
         )[HomeViewModel::class]
 
@@ -98,6 +89,35 @@ class HomeFragment : Fragment() {
                     tracksListAdapter.updateData(tracks)
                 }
             }
+        }
+
+        binding.playlistsCarousel.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        binding.playlistsCarousel.adapter = playlistCardAdapter
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.playlistsState.collect{ playlists ->
+                    if (playlists.isEmpty()) {
+                        binding.navigateToCreatePlaylist.visibility = View.VISIBLE
+                        binding.playlistsCarousel.visibility = View.GONE
+                        binding.playlistListTitle.text = "Não há playlists"
+                    } else {
+                        binding.navigateToCreatePlaylist.visibility = View.GONE
+                        binding.playlistsCarousel.visibility = View.VISIBLE
+                        binding.playlistListTitle.text = "Minhas Playlists"
+                    }
+                    playlistCardAdapter.updateData(playlists)
+                }
+            }
+        }
+
+        //Open the FragmentPlaylist of the selected playlist
+        playlistCardAdapter.onItemClick = {playlistItem ->
+            navController.navigate("${NavigationRoutes.playlist}/${playlistItem.playlist.id}")
         }
     }
 }
