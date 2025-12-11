@@ -130,7 +130,11 @@ class UpsertPlaylistFragment : Fragment() {
                 Snackbar.LENGTH_SHORT
             ).show()
 
-            navController.navigate("${NavigationRoutes.playlist}/${state.createdId}")
+            val navOptions = androidx.navigation.NavOptions.Builder()
+                .setPopUpTo(NavigationRoutes.home, false)
+                .build()
+            navController.navigate("${NavigationRoutes.playlist}/${state.createdId}",
+                navOptions)
         }
 
         binding.cover.setCoverUri(state.coverUri)
