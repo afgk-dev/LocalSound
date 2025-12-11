@@ -71,19 +71,24 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Room dependencies
-
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
 
     //Worker dependencies
     implementation(libs.androidx.work.runtime.ktx)
 
+    // Glide
+    implementation(libs.glide)
+
+    // Media3 dependencies
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.mediasession)
+
     // Symbol processing
     ksp(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.room.compiler)
-
-    // Glide
-    implementation(libs.glide)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

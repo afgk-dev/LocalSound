@@ -21,6 +21,8 @@ kotlinSerializationPlugin = "2.2.21"
 kotlinKspPlugin = "2.2.21-2.0.4"
 workRuntimeKtx = "2.11.0"
 
+exoplayer = "1.8.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -49,6 +51,12 @@ androidx-navigation-testing = { group = "androidx.navigation", name = "navigatio
 
 # Worker dependecies
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+
+# Exoplayer dependecies
+androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "exoplayer" }
+androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "exoplayer" }
+androidx-media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "exoplayer" }
+androidx-media3-mediasession = { group = "androidx.media3", name = "media3-session", version.ref = "exoplayer" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

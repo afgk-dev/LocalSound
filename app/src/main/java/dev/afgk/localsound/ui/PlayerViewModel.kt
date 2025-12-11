@@ -1,0 +1,120 @@
+package dev.afgk.localsound.ui
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
+import dev.afgk.localsound.data.tracks.TrackEntity
+import dev.afgk.localsound.data.tracks.TracksRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+enum class PlayerStatus {
+    PAUSED,
+    PLAYING,
+    FINISHED,
+    BUFFERING,
+    NOT_PREPARED
+}
+
+data class PlayerUiState(
+    val status: PlayerStatus = PlayerStatus.NOT_PREPARED,
+    val mediaMetadata: MediaMetadata? = null
+)
+
+class PlayerViewModel(
+    private val tracksRepository: TracksRepository
+) : ViewModel() {
+    private val _TAG = "PlayerViewModel"
+
+    private var player: Player? = null
+
+    private var availableTracks = tracksRepository.getTracksWithArtist()
+    private val _state = MutableStateFlow(PlayerUiState())
+
+    val state = _state.asStateFlow()
+
+    fun setPlayer(newPlayer: Player) {
+        newPlayer.addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                var status: PlayerStatus
+
+                if (isPlaying) status = PlayerStatus.PLAYING
+                else status = when (newPlayer.playbackState) {
+                    Player.STATE_BUFFERING -> PlayerStatus.BUFFERING
+                    Player.STATE_ENDED -> PlayerStatus.FINISHED
+                    else -> PlayerStatus.PAUSED
+                }
+
+                Log.i(_TAG, "status = $status")
+
+                _state.update { it.copy(status = status) }
+            }
+
+            override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+                Log.i(_TAG, "artist = ${mediaMetadata.artist}")
+                Log.i(_TAG, "title = ${mediaMetadata.title}")
+
+                if (mediaMetadata.artist == null || mediaMetadata.title == null)
+                    return
+
+                _state.update { it.copy(mediaMetadata = mediaMetadata) }
+            }
+        })
+
+        player = newPlayer
+    }
+
+    fun playPause() {
+        if (player == null) return
+
+        if (_state.value.status == PlayerStatus.PLAYING) player?.pause()
+        else if (_state.value.status == PlayerStatus.PAUSED) player?.play()
+    }
+
+    fun playTrack(track: TrackEntity) {
+        if (player == null) return
+
+        val mediaItemBuilder = MediaItem.Builder()
+
+        val firstTrack = mediaItemBuilder.setMediaId(track.id.toString()).setUri(track.uri).build()
+
+        player?.clearMediaItems()
+
+        if (_state.value.status == PlayerStatus.NOT_PREPARED)
+            player?.prepare()
+
+        viewModelScope.launch {
+            availableTracks.first()
+                .filter { it.track.uri != track.uri }
+                .let { tracks ->
+                    player?.setMediaItems(
+                        listOf(
+                            firstTrack,
+                            *tracks.map {
+                                mediaItemBuilder.setMediaId(it.track.id.toString())
+                                    .setUri(it.track.uri).build()
+                            }.toTypedArray()
+                        )
+                    )
+                }
+
+            player?.play()
+        }
+    }
+
+    fun next() {
+        if (player == null) return
+        player?.seekToNext()
+    }
+
+    fun previous() {
+        if (player == null) return
+        player?.seekToPrevious()
+    }
+}

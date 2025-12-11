@@ -1,5 +1,6 @@
 package dev.afgk.localsound.ui
 
+import android.content.ComponentName
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
@@ -9,16 +10,35 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.google.common.util.concurrent.MoreExecutors
+import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.ActivityMainBinding
+import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationGraph
 import dev.afgk.localsound.ui.sync.SyncTracksViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+    private val _TAG = "MainActivity"
+
     private lateinit var binding: ActivityMainBinding
 
+    private val tracksRepository = MyApplication.appModule.tracksRepository
+
     private val syncTracksViewModel: SyncTracksViewModel by viewModels()
+    private val playerViewModel: PlayerViewModel by viewModels {
+        viewModelFactory {
+            PlayerViewModel(tracksRepository)
+        }
+    }
+
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,9 +63,12 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
 
         NavigationGraph().setGraph(navController)
+
+        setupPlayer()
+        setupMiniPlayer()
 
         /**
          * Enable edge-to-edge and ensure that the app content won't be behind
@@ -81,10 +104,33 @@ class MainActivity : AppCompatActivity() {
             return@insetsCb WindowInsetsCompat.CONSUMED
         }
     }
-    
+
     override fun onResume() {
         super.onResume()
         syncTracksIfChanged()
+    }
+
+    fun setupPlayer() {
+        val sessionToken = SessionToken(this, ComponentName(this, PlaybackService::class.java))
+        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+        controllerFuture.addListener(
+            {
+                playerViewModel.setPlayer(controllerFuture.get())
+            },
+            MoreExecutors.directExecutor()
+        )
+    }
+
+    fun setupMiniPlayer() {
+        val miniPlayer = binding.miniPlayer
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            miniPlayer.currentRoute = destination.route
+        }
+
+        lifecycleScope.launch {
+            miniPlayer.bindViewModel(playerViewModel)
+        }
     }
 
     private var lastExternalStorageGeneration: Long? = null
