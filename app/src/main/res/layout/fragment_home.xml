@@ -73,15 +73,33 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/openBottomSheetModal"
-        style="@style/Widget.Material3.Button.Icon"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="Abrir sheet"
-        app:icon='@drawable/baseline_audiotrack_24'
+
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/openBottomSheetModal"
+            style="@style/Widget.Material3.Button.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:text="Abrir sheet"
+            app:icon='@drawable/baseline_audiotrack_24' />
+
+        <Button
+            android:id="@+id/openSync"
+            style="@style/Widget.Material3.Button.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:text="Sync"
+            app:icon='@drawable/baseline_audiotrack_24'
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

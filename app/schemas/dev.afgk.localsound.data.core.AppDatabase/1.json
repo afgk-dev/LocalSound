@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c88f60d9cea4132154fa538b4bca228c",
+    "identityHash": "e3a5864fe192a27dbde6a6b93d91ff5b",
     "entities": [
       {
         "tableName": "artists",
@@ -39,6 +39,15 @@
           ]
         },
         "indices": [
+          {
+            "name": "index_artists_name",
+            "unique": true,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_artists_name` ON `${TABLE_NAME}` (`name`)"
+          },
           {
             "name": "index_artists_pictureUri",
             "unique": true,
@@ -85,6 +94,15 @@
           ]
         },
         "indices": [
+          {
+            "name": "index_releases_name",
+            "unique": true,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_releases_name` ON `${TABLE_NAME}` (`name`)"
+          },
           {
             "name": "index_releases_coverArtUri",
             "unique": true,
@@ -365,7 +383,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c88f60d9cea4132154fa538b4bca228c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e3a5864fe192a27dbde6a6b93d91ff5b')"
     ]
   }
 }

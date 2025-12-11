@@ -8,16 +8,17 @@ import java.util.Date
 @Entity(
     tableName = "artists",
     indices = [
+        Index(value = ["name"], unique = true),
         Index(value = ["pictureUri"], unique = true)
     ]
 )
 data class ArtistEntity(
     @PrimaryKey(
         autoGenerate = true
-    ) val id: Long,
+    ) val id: Long = 0,
 
     val name: String,
-    val pictureUri: String?,
+    val pictureUri: String? = null,
 
-    val createdAt: Date
+    val createdAt: Date = Date()
 )
