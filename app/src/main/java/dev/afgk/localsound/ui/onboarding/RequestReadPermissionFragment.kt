@@ -1,7 +1,6 @@
 package dev.afgk.localsound.ui.onboarding
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,15 +42,10 @@ class RequestReadPermissionFragment : Fragment() {
 
         navController = findNavController()
 
-        binding.requestPermissionBtn.setOnClickListener { view ->
+        binding.requestPermissionBtn.setOnClickListener {
             permissionsUiState.request(Ability.READ_AUDIO, requestPermissionLauncher) { granted ->
-                navController.navigate(NavigationRoutes.home)
+                if (granted) navController.navigate(NavigationRoutes.onboarding.syncTracks)
             }
-
-            Log.d(
-                TAG,
-                "Request permission button clicked"
-            )
         }
     }
 }

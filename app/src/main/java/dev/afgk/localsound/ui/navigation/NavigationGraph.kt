@@ -9,11 +9,13 @@ import dev.afgk.localsound.ui.home.HomeFragment
 import dev.afgk.localsound.ui.onboarding.RequestReadPermissionFragment
 import dev.afgk.localsound.ui.playlists.PlaylistFragment
 import dev.afgk.localsound.ui.playlists.UpsertPlaylistFragment
+import dev.afgk.localsound.ui.sync.SyncTracksFragment
 
 object NavigationRoutes {
     object onboarding {
         const val _route = "onboarding"
         const val requestReadPermission = "requestReadPermission"
+        const val syncTracks = "syncTracks"
     }
 
     const val home = "home"
@@ -35,6 +37,10 @@ class NavigationGraph {
             ) {
                 fragment<RequestReadPermissionFragment>(
                     route = NavigationRoutes.onboarding.requestReadPermission,
+                )
+
+                fragment<SyncTracksFragment>(
+                    route = NavigationRoutes.onboarding.syncTracks,
                 )
             }
 
