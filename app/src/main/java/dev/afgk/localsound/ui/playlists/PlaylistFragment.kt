@@ -26,8 +26,8 @@ class PlaylistFragment : Fragment() {
 
     private lateinit var navController: NavController
     private lateinit var viewModel: PlaylistViewModel
-    private val tracksListAdapter = TracksListAdapter(emptyList())
-    private val tracksSearchResultsAdapter = TracksListAdapter(emptyList())
+    private val tracksListAdapter = TracksListAdapter(emptyList()) {}
+    private val tracksSearchResultsAdapter = TracksListAdapter(emptyList()) {}
 
     private val _TAG = "PlaylistFragment"
 
