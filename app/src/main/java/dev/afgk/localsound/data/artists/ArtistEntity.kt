@@ -8,6 +8,7 @@ import java.util.Date
 @Entity(
     tableName = "artists",
     indices = [
+        Index(value = ["name"], unique = true),
         Index(value = ["pictureUri"], unique = true)
     ]
 )

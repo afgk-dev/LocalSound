@@ -8,6 +8,7 @@ import java.util.Date
 @Entity(
     tableName = "releases",
     indices = [
+        Index(value = ["name"], unique = true),
         Index(value = ["coverArtUri"], unique = true)
     ]
 )

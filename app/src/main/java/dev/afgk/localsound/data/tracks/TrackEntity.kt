@@ -1,5 +1,6 @@
 package dev.afgk.localsound.data.tracks
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -35,7 +36,7 @@ data class TrackEntity(
 
     val name: String,
     val duration: Int,
-    val uri: String,
+    val uri: Uri,
 
     val artistId: Long? = null,
     val releaseId: Long? = null,

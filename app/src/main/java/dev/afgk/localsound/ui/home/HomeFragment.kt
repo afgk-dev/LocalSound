@@ -78,6 +78,10 @@ class HomeFragment : Fragment() {
             navController.navigate("${NavigationRoutes.playlist}/${1}")
         }
 
+        binding.openSync.setOnClickListener {
+            navController.navigate(NavigationRoutes.onboarding.syncTracks)
+        }
+
         viewModel = ViewModelProvider.create(
             this,
             viewModelFactory {

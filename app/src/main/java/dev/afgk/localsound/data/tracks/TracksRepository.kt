@@ -1,9 +1,23 @@
-package dev.afgk.localsound.data.tracksfun
+package dev.afgk.localsound.data.tracks
 
-import dev.afgk.localsound.data.tracks.TracksDao
+import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class TracksRepository(
     private val tracksDao: TracksDao
 ) {
     fun getTracksWithArtist() = tracksDao.getTracksWithArtist()
+
+    suspend fun getTracksWithUriIn(uris: List<Uri>) = withContext(Dispatchers.IO) {
+        tracksDao.getTracksWithUriIn(uris)
+    }
+
+    suspend fun insert(vararg tracks: TrackEntity) = withContext(Dispatchers.IO) {
+        tracksDao.insert(*tracks)
+    }
+
+    suspend fun deleteTracksWithUriNotIn(uris: List<Uri>) = withContext(Dispatchers.IO) {
+        tracksDao.deleteTracksWithUriNotIn(uris)
+    }
 }

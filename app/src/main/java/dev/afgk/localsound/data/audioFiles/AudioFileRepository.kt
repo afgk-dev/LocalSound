@@ -3,17 +3,11 @@ package dev.afgk.localsound.data.audioFiles
 import android.content.ContentUris
 import android.content.Context
 import android.os.Build
-import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 
 class AudioFilesRepository(private val context: Context) {
     fun loadFiles(): List<AudioFile> {
         val audioFiles = mutableListOf<AudioFile>()
-
-        val musicFolder = Environment
-            .getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
-            .path
 
         val cols = object {
             val id = MediaStore.Audio.Media._ID
@@ -61,16 +55,22 @@ class AudioFilesRepository(private val context: Context) {
                 val title = cursor.getString(titleIdx)
                 val artist = cursor.getString(artistIdx)
                 val album = cursor.getString(albumIdx)
-                val duration = cursor.getInt(durationIdx)
+                val duration = cursor.getInt(durationIdx) / 1000
 
-                val path = ContentUris.withAppendedId(collection, id).toString()
+                val uri = ContentUris.withAppendedId(collection, id)
 
-                audioFiles.add(AudioFile(id, title, artist, album,duration, path))
+                audioFiles.add(
+                    AudioFile(
+                        id = id,
+                        name = title,
+                        artist = artist,
+                        release = album,
+                        duration = duration,
+                        uri = uri
+                    )
+                )
             }
         }
-
-        Log.d("AudioFilesRepository", "Found ${audioFiles.size} files in ${musicFolder}")
-        audioFiles.forEach { Log.d("AudioFilesRepository", it.toString()) }
 
         return audioFiles
     }

@@ -1,7 +1,9 @@
 package dev.afgk.localsound.ui
 
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
@@ -11,9 +13,12 @@ import androidx.navigation.fragment.NavHostFragment
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.ActivityMainBinding
 import dev.afgk.localsound.ui.navigation.NavigationGraph
+import dev.afgk.localsound.ui.sync.SyncTracksViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+    private val syncTracksViewModel: SyncTracksViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,5 +80,31 @@ class MainActivity : AppCompatActivity() {
 
             return@insetsCb WindowInsetsCompat.CONSUMED
         }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        syncTracksIfChanged()
+    }
+
+    private var lastExternalStorageGeneration: Long? = null
+    private var lastExternalStorageVersion: String? = null
+
+    fun syncTracksIfChanged() {
+        val currentGeneration = MediaStore.getGeneration(
+            this,
+            MediaStore.VOLUME_EXTERNAL_PRIMARY
+        )
+
+        val currentVersion = MediaStore.getVersion(this)
+
+        if (lastExternalStorageVersion != currentVersion || lastExternalStorageGeneration != currentGeneration)
+            syncTracksViewModel.sync(this)
+
+        if (lastExternalStorageGeneration != currentGeneration)
+            lastExternalStorageGeneration = currentGeneration
+
+        if (lastExternalStorageVersion != currentVersion)
+            lastExternalStorageVersion = currentVersion
     }
 }
