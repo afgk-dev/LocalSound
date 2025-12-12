@@ -46,28 +46,32 @@
                 style="?attr/materialIconButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/rounded_add_circle_24dp" />
+                app:icon="@drawable/rounded_add_circle_24dp"
+                app:iconSize="24dp" />
 
             <Button
                 android:id="@+id/prev_button"
                 style="?attr/materialIconButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/rounded_skip_previous_24dp" />
+                app:icon="@drawable/rounded_skip_previous_24dp"
+                app:iconSize="24dp" />
 
             <Button
                 android:id="@+id/play_pause_button"
                 style="?attr/materialIconButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/rounded_play_arrow_24dp" />
+                app:icon="@drawable/rounded_play_arrow_24dp"
+                app:iconSize="24dp" />
 
             <Button
                 android:id="@+id/next_button"
                 style="?attr/materialIconButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/rounded_skip_next_24dp" />
+                app:icon="@drawable/rounded_skip_next_24dp"
+                app:iconSize="24dp" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

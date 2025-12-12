@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import com.google.android.material.button.MaterialButton
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.ViewMiniPlayerBinding
+import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
 
 class MiniPlayerView @JvmOverloads constructor(
@@ -34,38 +35,53 @@ class MiniPlayerView @JvmOverloads constructor(
             binding.artist.text = value
         }
 
-//    var currentRoute: String?
-//        get() = null
-//        set(route) {
-//            when (route) {
-//                NavigationRoutes.home,
-//                "${NavigationRoutes.playlist}/{playlistId}"
-//                    -> show()
-//
-//                else -> hide()
-//            }
-//        }
+    var allowededRoutes = listOf(
+        NavigationRoutes.home,
+        "${NavigationRoutes.playlist}/{playlistId}"
+    )
 
     var currentRoute: String? = null
 
     private var playerViewModel: PlayerViewModel? = null
 
-    suspend fun bindViewModel(viewModel: PlayerViewModel) {
+    fun changeRoute(route: String?) {
+        currentRoute = route
+
+        if (currentRoute !in allowededRoutes) hide()
+    }
+
+    suspend fun bindViewModel(viewModel: PlayerViewModel, activity: MainActivity) {
         playerViewModel = viewModel
 
-        viewModel.state.collect {
-            Log.i(_TAG, it.status.name)
+        viewModel.state.collect { (status, mediaMetadata, media) ->
+            Log.i(_TAG, status.name)
 
-            when (it.status) {
+            if (currentRoute !in allowededRoutes)
+                return@collect hide()
+
+            when (status) {
                 PlayerStatus.PLAYING -> playing()
                 PlayerStatus.PAUSED -> paused()
                 PlayerStatus.BUFFERING -> Unit
                 else -> hide()
             }
 
-            if (it.mediaMetadata != null) {
-                track = it.mediaMetadata.title.toString()
-                artist = it.mediaMetadata.artist.toString()
+            if (media != null) {
+                binding.addToPlaylist.setOnClickListener(null)
+                binding.addToPlaylist.setOnClickListener {
+                    Log.i(_TAG, "binding.addToPlaylist")
+
+                    PlaylistQuickActionsBottomSheetModal(media.mediaId.toLong())
+                        .show(
+                            activity.supportFragmentManager,
+                            _TAG
+                        )
+                }
+            }
+
+            if (mediaMetadata != null) {
+                track = mediaMetadata.title.toString()
+                artist = mediaMetadata.artist.toString() ?: "Artista desconhecido"
             }
         }
     }
@@ -91,7 +107,7 @@ class MiniPlayerView @JvmOverloads constructor(
     init {
         with(binding) {
             addToPlaylist.setOnClickListener {
-                PlaylistQuickActionsBottomSheetModal()
+//                PlaylistQuickActionsBottomSheetModal()
             }
             prevButton.setOnClickListener { playerViewModel?.previous() }
             playPauseButton.setOnClickListener { playerViewModel?.playPause() }

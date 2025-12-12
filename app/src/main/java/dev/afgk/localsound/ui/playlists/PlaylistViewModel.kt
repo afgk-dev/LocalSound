@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import java.util.Date
 
 sealed class PlaylistViewModelUiState() {
@@ -26,7 +27,8 @@ sealed class PlaylistViewModelUiState() {
         val tracks: List<PlaylistTrackWithDetails>,
         val searchedTracks: List<PlaylistTrackWithDetails>,
         val sorting: PlaylistSorting,
-        val updatedAt: Date? = null
+        val updatedAt: Date? = null,
+        val shuffle: Boolean = false
     ) : PlaylistViewModelUiState()
 
     data object PlaylistNotFound : PlaylistViewModelUiState()
@@ -42,15 +44,17 @@ class PlaylistViewModel(
     private val playlistRepository: PlaylistRepository
 ) : ViewModel() {
     private val sortingDir = MutableStateFlow(PlaylistSorting.RECENT)
-    private val search = MutableStateFlow<String>("")
+    private val search = MutableStateFlow("")
+    private val shuffle = MutableStateFlow(false)
 
     @OptIn(FlowPreview::class)
     private val playlistFlow =
         combine(
             playlistRepository.getPlaylistTracks(playlistId),
             sortingDir,
-            search.debounce(300L)
-        ) { playlistResult, sorting, query ->
+            search.debounce(300L),
+            shuffle
+        ) { playlistResult, sorting, query, shuffle ->
             if (playlistResult == null) return@combine PlaylistViewModelUiState.PlaylistNotFound
 
             val (playlist, tracks) = playlistResult
@@ -85,7 +89,8 @@ class PlaylistViewModel(
                 tracks = sortedTracks,
                 searchedTracks = searchedTracks,
                 sorting = sorting,
-                updatedAt = playlist.updatedAt
+                updatedAt = playlist.updatedAt,
+                shuffle = shuffle
             )
         }
 
@@ -101,6 +106,10 @@ class PlaylistViewModel(
         } else {
             PlaylistSorting.RECENT
         }
+    }
+
+    fun toggleShuffle() {
+        shuffle.update { !it }
     }
 
     fun search(query: String) {

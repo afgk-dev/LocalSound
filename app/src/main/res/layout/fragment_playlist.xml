@@ -73,16 +73,18 @@
                 app:layout_constraintTop_toBottomOf="@id/playlist_name_details">
 
                 <Button
+                    android:id="@+id/play_button"
                     style="?attr/materialIconButtonFilledStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/baseline_play_arrow_24" />
 
                 <Button
+                    android:id="@+id/shuffle_button"
                     style="?attr/materialIconButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/baseline_shuffle_24" />
+                    app:icon="@drawable/rounded_shuffle_24dp" />
 
                 <Button
                     android:id="@+id/edit_button"

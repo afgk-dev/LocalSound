@@ -24,7 +24,8 @@ enum class PlayerStatus {
 
 data class PlayerUiState(
     val status: PlayerStatus = PlayerStatus.NOT_PREPARED,
-    val mediaMetadata: MediaMetadata? = null
+    val mediaMetadata: MediaMetadata? = null,
+    val media: MediaItem? = null
 )
 
 class PlayerViewModel(
@@ -56,11 +57,17 @@ class PlayerViewModel(
                 _state.update { it.copy(status = status) }
             }
 
+            override fun onMediaItemTransition(media: MediaItem?, reason: Int) {
+                if (media == null) return
+
+                _state.update { it.copy(media = media) }
+            }
+
             override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                 Log.i(_TAG, "artist = ${mediaMetadata.artist}")
                 Log.i(_TAG, "title = ${mediaMetadata.title}")
 
-                if (mediaMetadata.artist == null || mediaMetadata.title == null)
+                if (mediaMetadata.title == null)
                     return
 
                 _state.update { it.copy(mediaMetadata = mediaMetadata) }
@@ -77,33 +84,41 @@ class PlayerViewModel(
         else if (_state.value.status == PlayerStatus.PAUSED) player?.play()
     }
 
-    fun playTrack(track: TrackEntity) {
+    fun playTrack(
+        track: TrackEntity,
+        tracksQueue: List<TrackEntity>? = null,
+        shuffle: Boolean = false
+    ) {
         if (player == null) return
 
         val mediaItemBuilder = MediaItem.Builder()
 
         val firstTrack = mediaItemBuilder.setMediaId(track.id.toString()).setUri(track.uri).build()
 
-        player?.clearMediaItems()
+        player?.setMediaItems(listOf())
 
         if (_state.value.status == PlayerStatus.NOT_PREPARED)
             player?.prepare()
 
-        viewModelScope.launch {
-            availableTracks.first()
-                .filter { it.track.uri != track.uri }
+        fun mapNextTracks(tracks: List<TrackEntity>): List<MediaItem> {
+            return tracks.filter { it.uri != track.uri }
                 .let { tracks ->
-                    player?.setMediaItems(
-                        listOf(
-                            firstTrack,
-                            *tracks.map {
-                                mediaItemBuilder.setMediaId(it.track.id.toString())
-                                    .setUri(it.track.uri).build()
-                            }.toTypedArray()
-                        )
+                    listOf(
+                        firstTrack,
+                        *tracks.map {
+                            mediaItemBuilder.setMediaId(it.id.toString())
+                                .setUri(it.uri).build()
+                        }.toTypedArray()
                     )
                 }
+        }
 
+        viewModelScope.launch {
+            player?.setMediaItems(mapNextTracks(tracksQueue ?: availableTracks.first().map {
+                it.track
+            }))
+
+            player?.shuffleModeEnabled = shuffle
             player?.play()
         }
     }
