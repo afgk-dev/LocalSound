@@ -125,11 +125,13 @@ class MainActivity : AppCompatActivity() {
         val miniPlayer = binding.miniPlayer
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            miniPlayer.currentRoute = destination.route
+            miniPlayer.changeRoute(destination.route)
         }
 
+        val activity = this
+
         lifecycleScope.launch {
-            miniPlayer.bindViewModel(playerViewModel)
+            miniPlayer.bindViewModel(playerViewModel, activity)
         }
     }
 

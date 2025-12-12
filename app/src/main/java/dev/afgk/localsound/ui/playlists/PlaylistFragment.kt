@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -15,6 +16,7 @@ import com.google.android.material.button.MaterialButton
 import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.FragmentPlaylistBinding
+import dev.afgk.localsound.ui.PlayerViewModel
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
@@ -26,8 +28,17 @@ class PlaylistFragment : Fragment() {
 
     private lateinit var navController: NavController
     private lateinit var viewModel: PlaylistViewModel
+
     private val tracksListAdapter = TracksListAdapter(emptyList()) {}
     private val tracksSearchResultsAdapter = TracksListAdapter(emptyList()) {}
+
+    private val playerViewModel: PlayerViewModel by activityViewModels {
+        viewModelFactory {
+            PlayerViewModel(
+                MyApplication.appModule.tracksRepository
+            )
+        }
+    }
 
     private val _TAG = "PlaylistFragment"
 
@@ -67,12 +78,33 @@ class PlaylistFragment : Fragment() {
             }
         )[PlaylistViewModel::class]
 
-        binding.playlistTracksList.layoutManager = LinearLayoutManager(requireContext())
-        binding.playlistTracksList.adapter = tracksListAdapter
+        setupRecyclerViews()
+        setupListeners(playlistId)
 
-        binding.playlistTracksSearchResults.layoutManager = LinearLayoutManager(requireContext())
-        binding.playlistTracksSearchResults.adapter = tracksSearchResultsAdapter
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.playlistState.collect { playlist ->
+                when (playlist) {
+                    is PlaylistViewModelUiState.Success -> success(playlist)
+                    is PlaylistViewModelUiState.PlaylistNotFound -> notFound()
+                    is PlaylistViewModelUiState.Loading -> loading()
+                }
+            }
+        }
+    }
 
+    fun setupRecyclerViews() {
+        binding.playlistTracksList.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = tracksListAdapter
+        }
+
+        binding.playlistTracksSearchResults.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = tracksSearchResultsAdapter
+        }
+    }
+
+    fun setupListeners(playlistId: Long) {
         binding.sortingButton.setOnClickListener {
             viewModel.toggleSorting()
         }
@@ -85,14 +117,21 @@ class PlaylistFragment : Fragment() {
             navController.navigate("${NavigationRoutes.updatePlaylist}/${playlistId}")
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.playlistState.collect { playlist ->
-                when (playlist) {
-                    is PlaylistViewModelUiState.Success -> success(playlist)
-                    is PlaylistViewModelUiState.PlaylistNotFound -> notFound()
-                    is PlaylistViewModelUiState.Loading -> loading()
-                }
+        binding.playButton.setOnClickListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val tracks = viewModel.playlistState.value
+
+                if (tracks is PlaylistViewModelUiState.Success)
+                    playerViewModel.playTrack(
+                        tracks.tracks[0].track.track,
+                        tracks.tracks.map { it.track.track },
+                        (viewModel.playlistState.value as PlaylistViewModelUiState.Success).shuffle
+                    )
             }
+        }
+
+        binding.shuffleButton.setOnClickListener {
+            viewModel.toggleShuffle()
         }
     }
 
@@ -106,6 +145,11 @@ class PlaylistFragment : Fragment() {
         binding.playlistCover.setCoverUri(
             playlist.coverUri,
             playlist.updatedAt?.time.toString()
+        )
+
+        (binding.shuffleButton as MaterialButton).setIconResource(
+            if (playlist.shuffle) R.drawable.rounded_shuffle_on_24dp
+            else R.drawable.rounded_shuffle_24dp
         )
 
         tracksListAdapter.updateData(playlist.tracks.map { (_, track) -> track })
