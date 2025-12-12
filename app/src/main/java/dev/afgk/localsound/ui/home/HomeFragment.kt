@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,7 @@ import dev.afgk.localsound.databinding.FragmentHomeBinding
 import dev.afgk.localsound.ui.Ability
 import dev.afgk.localsound.ui.HomeViewModel
 import dev.afgk.localsound.ui.PermissionsUiState
+import dev.afgk.localsound.ui.PlayerViewModel
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
@@ -32,8 +34,16 @@ class HomeFragment : Fragment() {
     private lateinit var navController: NavController
     private lateinit var viewModel: HomeViewModel
 
+    private val playerViewModel: PlayerViewModel by activityViewModels {
+        viewModelFactory {
+            PlayerViewModel(MyApplication.appModule.tracksRepository)
+        }
+    }
+
     private val playlistQuickActions = PlaylistQuickActionsBottomSheetModal(1L)
-    private val tracksListAdapter = TracksListAdapter(emptyList())
+    private val tracksListAdapter = TracksListAdapter(emptyList()) {
+        playerViewModel.playTrack(it.track)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
