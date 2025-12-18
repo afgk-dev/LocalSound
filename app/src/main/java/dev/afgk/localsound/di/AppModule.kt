@@ -29,7 +29,9 @@ class AppModuleImpl(
         Room.databaseBuilder(
             context,
             AppDatabase::class.java, "localsound-db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration() // Adicionado para evitar crash se a versão não mudar mas o schema sim
+        .build()
     }
 
     override val audioFilesRepository: AudioFilesRepository by lazy {
