@@ -9,129 +9,124 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.data.queue.QueueTrackEntity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import dev.afgk.localsound.data.tracks.TrackEntity
+import kotlinx.coroutines.*
 
 class PlaybackService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    
-    // Lazy initialization para evitar acesso ao banco antes da hora se houver algum problema no di
     private val queueDao by lazy { MyApplication.appModule.database.queueDao() }
 
-    override fun onGetSession(
-        controllerInfo: MediaSession.ControllerInfo
-    ): MediaSession? = mediaSession
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("PlaybackService", "onCreate iniciado")
-
         try {
             val player = ExoPlayer.Builder(this).build()
+            
+            // Restaura a fila e inicia a reprodução automaticamente
+            serviceScope.launch {
+                try {
+                    val orderedTracks: List<TrackEntity> = withContext(Dispatchers.IO) { 
+                        queueDao.getTracksInQueueOrdered() 
+                    }
+                    
+                    if (orderedTracks.isNotEmpty()) {
+                        val currentTrackId: Long? = withContext(Dispatchers.IO) { 
+                            queueDao.getCurrentTrackId() 
+                        }
+                        
+                        val mediaItems = orderedTracks.map { track ->
+                            MediaItem.Builder()
+                                .setMediaId(track.id.toString())
+                                .setUri(track.uri)
+                                .build()
+                        }
+                        
+                        val startIndex = if (currentTrackId != null) {
+                            orderedTracks.indexOfFirst { it.id == currentTrackId }.coerceAtLeast(0)
+                        } else {
+                            0
+                        }
+                        
+                        player.setMediaItems(mediaItems, startIndex, 0L)
+                        player.prepare()
+                        player.play()
+                        
+                        // Log solicitado: Lista encontrada
+                        Log.d("PlaybackService", "Lista encontrada: Contém ${mediaItems.size} músicas - fila por ids: ${orderedTracks.map { it.id }.joinToString(", ")}")
+                    } else {
+                        Log.d("PlaybackService", "Nenhuma fila anterior encontrada.")
+                    }
+                } catch (e: Exception) {
+                    Log.e("PlaybackService", "Erro ao restaurar fila: ${e.message}")
+                }
+            }
+
             player.addListener(object : Player.Listener {
                 override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-                    Log.d("PlaybackService", "onTimelineChanged: reason=$reason")
-                    updateDatabaseQueue(player)
+                    if (reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) {
+                        updateDatabaseQueue(player)
+                    }
                 }
 
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                    Log.d("PlaybackService", "onMediaItemTransition: ${mediaItem?.mediaId}")
                     mediaItem?.mediaId?.toLongOrNull()?.let { trackId ->
                         serviceScope.launch {
                             try {
-                                withContext(Dispatchers.IO) {
-                                    queueDao.updateCurrentTrack(trackId)
-                                }
+                                withContext(Dispatchers.IO) { queueDao.updateCurrentTrack(trackId) }
                                 checkQueueSync(player)
-                            } catch (e: Exception) {
-                                Log.e("PlaybackService", "Erro ao atualizar track atual: ${e.message}")
-                            }
+                            } catch (e: Exception) { Log.e("Queue", "Err: ${e.message}") }
                         }
                     }
                 }
             })
 
             mediaSession = MediaSession.Builder(this, player).build()
-            Log.d("PlaybackService", "MediaSession criada com sucesso")
         } catch (e: Exception) {
-            Log.e("PlaybackService", "Erro no onCreate do PlaybackService: ${e.message}")
-            e.printStackTrace()
+            Log.e("PlaybackService", "Crash prevent: ${e.message}")
         }
     }
 
     private fun updateDatabaseQueue(player: Player) {
-        val itemCount = player.mediaItemCount
-        if (itemCount == 0) return
-
-        val tracks = mutableListOf<QueueTrackEntity>()
-        val currentIndex = player.currentMediaItemIndex
-        
-        for (i in 0 until itemCount) {
-            val mediaItem = player.getMediaItemAt(i)
-            mediaItem.mediaId.toLongOrNull()?.let { trackId ->
-                tracks.add(
-                    QueueTrackEntity(
-                        id = 0,
-                        position = i,
-                        isCustomQueue = false,
-                        isCurrent = i == currentIndex,
-                        trackId = trackId
-                    )
-                )
+        val count = player.mediaItemCount
+        if (count == 0) return
+        val tracks = (0 until count).mapNotNull { i ->
+            player.getMediaItemAt(i).mediaId.toLongOrNull()?.let { id ->
+                QueueTrackEntity(0, i, false, i == player.currentMediaItemIndex, id)
             }
         }
-
-        if (tracks.isNotEmpty()) {
-            serviceScope.launch {
-                try {
-                    withContext(Dispatchers.IO) {
-                        queueDao.updateQueue(tracks)
-                    }
-                    checkQueueSync(player)
-                } catch (e: Exception) {
-                    Log.e("PlaybackService", "Erro ao atualizar fila no banco: ${e.message}")
-                }
-            }
+        serviceScope.launch {
+            try {
+                withContext(Dispatchers.IO) { queueDao.updateQueue(tracks) }
+                checkQueueSync(player)
+            } catch (e: Exception) { Log.e("Queue", "Save err: ${e.message}") }
         }
     }
 
     private suspend fun checkQueueSync(player: Player) {
         try {
             val playerIds = mutableListOf<Long>()
-            val itemCount = player.mediaItemCount
-            for (i in 0 until itemCount) {
+            for (i in 0 until player.mediaItemCount) {
                 player.getMediaItemAt(i).mediaId.toLongOrNull()?.let { playerIds.add(it) }
             }
-
-            val dbIds = withContext(Dispatchers.IO) {
-                queueDao.getAllQueueTrackIds()
-            }
             
-            val isSynced = playerIds == dbIds
-
+            // Log solicitado: Contém X músicas
             Log.d("PlaybackService", "Contém ${playerIds.size} músicas - fila por ids: ${playerIds.joinToString(", ")}")
-            Log.d("PlaybackService", "Fila no BD: ${dbIds.joinToString(", ")}")
             
-            if (isSynced) {
-                Log.d("PlaybackService", "✅ Sincronização: OK")
-            } else {
-                Log.w("PlaybackService", "⚠️ Sincronização: Player e BD estão temporariamente diferentes")
-            }
-        } catch (e: Exception) {
-            Log.e("PlaybackService", "Erro ao conferir sincronismo: ${e.message}")
-        }
+            val dbIds = withContext(Dispatchers.IO) { queueDao.getAllQueueTrackIds() }
+            val isSynced = playerIds == dbIds
+            
+            if (isSynced) Log.d("PlaybackService", "✅ Sincronização: OK")
+            else Log.w("PlaybackService", "⚠️ Sincronização: Diferente")
+        } catch (e: Exception) {}
     }
 
     override fun onDestroy() {
-        Log.d("PlaybackService", "onDestroy iniciado")
+        serviceScope.cancel()
         mediaSession?.run {
             player.release()
             release()
-            mediaSession = null
         }
         super.onDestroy()
     }

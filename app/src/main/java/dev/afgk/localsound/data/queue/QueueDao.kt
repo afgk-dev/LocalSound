@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import dev.afgk.localsound.data.core.BaseDao
+import dev.afgk.localsound.data.tracks.TrackEntity
 
 @Dao
 interface QueueDao : BaseDao<QueueTrackEntity> {
@@ -19,10 +20,26 @@ interface QueueDao : BaseDao<QueueTrackEntity> {
     @Query("SELECT trackId FROM queue_tracks ORDER BY position ASC")
     suspend fun getAllQueueTrackIds(): List<Long>
 
+    @Query("SELECT * FROM queue_tracks ORDER BY position ASC")
+    suspend fun getQueueTracks(): List<QueueTrackEntity>
+
+    @Query("SELECT trackId FROM queue_tracks WHERE isCurrent = 1 LIMIT 1")
+    suspend fun getCurrentTrackId(): Long?
+
+    @Transaction
+    @Query("""
+        SELECT tracks.* FROM tracks 
+        INNER JOIN queue_tracks ON tracks.id = queue_tracks.trackId 
+        ORDER BY queue_tracks.position ASC
+    """)
+    suspend fun getTracksInQueueOrdered(): List<TrackEntity>
+
     @Transaction
     suspend fun updateQueue(tracks: List<QueueTrackEntity>) {
         clearQueue()
-        insert(tracks)
+        if (tracks.isNotEmpty()) {
+            insert(tracks)
+        }
     }
 
     @Transaction
