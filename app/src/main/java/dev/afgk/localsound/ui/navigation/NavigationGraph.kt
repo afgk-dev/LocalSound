@@ -11,12 +11,35 @@ import dev.afgk.localsound.ui.player.PlayerFragment
 import dev.afgk.localsound.ui.playlists.PlaylistFragment
 import dev.afgk.localsound.ui.playlists.UpsertPlaylistFragment
 import dev.afgk.localsound.ui.sync.SyncTracksFragment
+import dev.afgk.localsound.ui.onboarding.LoadingMusicFragment
 
+class NavigationGraph {
+
+    fun setGraph(navController: NavController) {
+        navController.graph = navController.createGraph(
+            startDestination = NavigationRoutes.onboarding._route
+        ) {
+            navigation(
+                startDestination = NavigationRoutes.onboarding.requestReadPermission,
+                route = NavigationRoutes.onboarding._route
+            ) {
+                fragment<RequestReadPermissionFragment>(NavigationRoutes.onboarding.requestReadPermission)
+                fragment<SyncTracksFragment>(NavigationRoutes.onboarding.syncTracks)
+
+                fragment<LoadingMusicFragment>(NavigationRoutes.onboarding.loadingMusic)
+            }
+
+            fragment<HomeFragment>(NavigationRoutes.home)
+            fragment<PlayerFragment>(NavigationRoutes.player)
+        }
+    }
+}
 object NavigationRoutes {
     object onboarding {
         const val _route = "onboarding"
         const val requestReadPermission = "requestReadPermission"
         const val syncTracks = "syncTracks"
+        const val loadingMusic = "loading_music"
     }
 
     const val home = "home"
@@ -28,68 +51,4 @@ object NavigationRoutes {
     const val playlist = "playlist"
 }
 
-class NavigationGraph {
-    fun setGraph(navController: NavController) {
-        navController.graph = navController.createGraph(
-            startDestination = NavigationRoutes.home
-        ) {
-            navigation(
-                startDestination = NavigationRoutes.onboarding.requestReadPermission,
-                route = NavigationRoutes.onboarding._route
-            ) {
-                fragment<RequestReadPermissionFragment>(
-                    route = NavigationRoutes.onboarding.requestReadPermission,
-                )
-
-                fragment<SyncTracksFragment>(
-                    route = NavigationRoutes.onboarding.syncTracks,
-                )
-            }
-
-            fragment<HomeFragment>(
-                route = NavigationRoutes.home
-            )
-
-            fragment<PlayerFragment>(
-                route = NavigationRoutes.player
-            ) {}
-
-            fragment<UpsertPlaylistFragment>(
-                route = "${NavigationRoutes.createPlaylist}/{trackId}"
-            ) {
-                argument("trackId") {
-                    type = NavType.LongType
-                    nullable = false
-                }
-
-                argument("playlistId") {
-                    type = NavType.LongType
-                    defaultValue = -1L
-                }
-            }
-
-            fragment<UpsertPlaylistFragment>(
-                route = "${NavigationRoutes.updatePlaylist}/{playlistId}"
-            ) {
-                argument("playlistId") {
-                    type = NavType.LongType
-                    nullable = false
-                }
-
-                argument("trackId") {
-                    type = NavType.LongType
-                    defaultValue = -1L
-                }
-            }
-
-            fragment<PlaylistFragment>(
-                route = "${NavigationRoutes.playlist}/{playlistId}"
-            ) {
-                argument("playlistId") {
-                    type = NavType.LongType
-                    nullable = false
-                }
-            }
-        }
-    }
-}
+const val loadingMusic = "loading_music"

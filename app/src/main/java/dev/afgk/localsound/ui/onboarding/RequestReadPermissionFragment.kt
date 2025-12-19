@@ -45,6 +45,7 @@ class RequestReadPermissionFragment : Fragment() {
         binding.requestPermissionBtn.setOnClickListener {
             permissionsUiState.request(Ability.READ_AUDIO, requestPermissionLauncher) { granted ->
                 if (granted) navController.navigate(NavigationRoutes.onboarding.syncTracks)
+                findNavController().navigate(NavigationRoutes.onboarding.loadingMusic)
             }
         }
     }

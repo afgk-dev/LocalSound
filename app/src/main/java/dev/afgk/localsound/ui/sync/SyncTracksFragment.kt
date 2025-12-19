@@ -86,7 +86,7 @@ class SyncTracksFragment : Fragment() {
     }
 
     fun synced() {
-        navController.navigate(NavigationRoutes.home) {
+        navController.navigate(NavigationRoutes.onboarding.loadingMusic) {
             popUpTo(navController.graph.id) {
                 inclusive = true
             }
