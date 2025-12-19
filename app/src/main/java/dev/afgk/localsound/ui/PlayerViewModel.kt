@@ -1,6 +1,8 @@
 package dev.afgk.localsound.ui
 
 import android.net.Uri
+import android.os.Bundle
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,7 +27,11 @@ data class PlayerTrack(
 
     val name: String,
     val artistName: String,
+
     val coverUri: Uri? = null,
+
+    val isCustomQueued: Boolean = false,
+    val queueIndex: Int = 0,
 
     val duration: Long,
     val position: Long = 0L,
@@ -35,6 +41,8 @@ data class PlayerTrack(
 data class PlayerUiState(
     val track: PlayerTrack? = null,
     val trackQueuePosition: Int? = null,
+
+    val nextQueue: List<PlayerTrack> = listOf(),
 
     val playing: Boolean = false,
     val buffering: Boolean = false,
@@ -56,9 +64,14 @@ class PlayerViewModel(
         override fun onMediaItemTransition(media: MediaItem?, reason: Int) = update()
         override fun onSeekBackIncrementChanged(seekBackIncrementMs: Long) = update()
         override fun onSeekForwardIncrementChanged(seekForwardIncrementMs: Long) = update()
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) = update()
 
         override fun onPlayerError(error: PlaybackException) =
             _uiState.update { it.copy(error = error.toString()) }
+    }
+
+    private val mediaItemExtrasKeys = object {
+        val isCustomQueue = "isCustomQueue"
     }
 
     private val _uiState = MutableStateFlow(PlayerUiState())
@@ -101,19 +114,55 @@ class PlayerViewModel(
         }
     }
 
+    fun addNext(trackId: Long) {
+        player?.let { player ->
+            val (fromIndex, mediaItem) = player.findTimelineIndexByMediaId(trackId.toString())
+            val toIndex = player.currentMediaItemIndex + 1
+
+            if (fromIndex != -1 && mediaItem != null) {
+                player.moveMediaItem(fromIndex, toIndex)
+                player.replaceMediaItem(toIndex, mediaItem.withCustomQueueFlag(true))
+                update()
+            }
+        }
+    }
+
+    fun addNext(track: EnrichedTrack) {
+        player?.let { player ->
+            val toIndex = player.currentMediaItemIndex + 1
+
+            player.addMediaItem(toIndex, track.toMediaItem().withCustomQueueFlag(true))
+            update()
+        }
+    }
+
+    fun removeFromQueue(trackId: Long) {
+        player?.let { player ->
+            val (fromIndex) = player.findTimelineIndexByMediaId(trackId.toString())
+
+            if (fromIndex != 1) {
+                player.removeMediaItem(fromIndex)
+            }
+        }
+    }
+
     fun next() = player?.seekToNext()
     fun previous() = player?.seekToPrevious()
     fun seekTo(position: Long) = player?.seekTo(position)
 
     // Private util methods
     private fun update() {
-        player?.let { p ->
-            var playingTrack = if (_uiState.value.track != p.currentMediaItem)
-                p.currentMediaItem?.toPlayerTrack()
+        player?.let { player ->
+            var playingTrack = if (_uiState.value.track != player.currentMediaItem)
+                player.currentMediaItem?.toPlayerTrack()
             else _uiState.value.track
 
-            val duration = p.duration
-            val currentPosition = p.currentPosition
+            /**
+             * This check is done to avoid sending negative numbers when transitioning
+             * from one track to another using seekNext and seekPrevious
+             */
+            val duration = if (player.duration > 0L) player.duration else 1L
+            val currentPosition = player.currentPosition
             val progress = (currentPosition.toFloat() / duration.toFloat()) * 100
 
             playingTrack = playingTrack?.copy(
@@ -122,18 +171,33 @@ class PlayerViewModel(
                 progress = progress
             )
 
+            Log.d(
+                _TAG,
+                "${player.getPlaybackQueue().map { "(${it.name},${it.queueIndex})" }}"
+            )
+
+            val queue = player.getPlaybackQueue()
+            val nextQueue = player.getUpcomingQueue()
+
+            queue
+                .filter { track -> track.id !in nextQueue.map { it.id } && track.isCustomQueued }
+                .forEach { player.removeMediaItem(it.queueIndex) }
+
             _uiState.update {
                 it.copy(
-                    playing = p.isPlaying,
-                    buffering = p.playbackState == Player.STATE_BUFFERING,
-                    hidden = p.playbackState == Player.STATE_IDLE,
+                    playing = player.isPlaying,
+                    buffering = player.playbackState == Player.STATE_BUFFERING,
+                    hidden = player.playbackState == Player.STATE_IDLE,
                     track = playingTrack,
+                    nextQueue = player.getUpcomingQueue()
                 )
             }
         }
     }
 
     // Extension functions
+
+    // TODO: Entender o que essa função faz exatamente, gerado por IA
     @OptIn(UnstableApi::class)
     fun Player.getPlaybackQueue(): List<PlayerTrack> {
         val timeline = currentTimeline
@@ -151,7 +215,7 @@ class PlayerViewModel(
 
         repeat(windowCount) {
             timeline.getWindow(index, window)
-            queue.add(window.mediaItem.toPlayerTrack())
+            queue.add(window.mediaItem.toPlayerTrack(index))
 
             index = timeline.getNextWindowIndex(
                 index,
@@ -163,20 +227,75 @@ class PlayerViewModel(
         return queue
     }
 
-    fun MediaItem.toPlayerTrack(): PlayerTrack {
+    // TODO: Entender o que essa função faz exatamente, gerado por IA
+    @OptIn(UnstableApi::class)
+    fun Player.getUpcomingQueue(): List<PlayerTrack> {
+        val timeline = currentTimeline
+        if (timeline.isEmpty) return emptyList()
+
+        val window = Timeline.Window()
+        val queue = mutableListOf<PlayerTrack>()
+
+        val windowCount = timeline.windowCount
+
+        for (index in currentMediaItemIndex until windowCount) {
+            timeline.getWindow(index, window)
+            queue.add(
+                window.mediaItem.toPlayerTrack(queueIndex = index)
+            )
+        }
+
+        return queue
+    }
+
+    // TODO: Entender o que essa função faz exatamente, gerado por IA
+    fun Player.findTimelineIndexByMediaId(mediaId: String): Pair<Int, MediaItem?> {
+        val timeline = currentTimeline
+        val window = Timeline.Window()
+
+        for (i in 0 until timeline.windowCount) {
+            timeline.getWindow(i, window)
+            if (window.mediaItem.mediaId == mediaId) {
+                return Pair(i, window.mediaItem)
+            }
+        }
+        return Pair(-1, null)
+    }
+
+    fun MediaItem.toPlayerTrack(queueIndex: Int = 0): PlayerTrack {
         val trackId = mediaId.toLong()
         val name = mediaMetadata.title?.toString() ?: "Sem título"
         val artistName = mediaMetadata.artist?.toString() ?: "Artista desconhecido"
         val coverUri = mediaMetadata.artworkUri
         val duration = mediaMetadata.durationMs ?: 0L
+        val isCustomQueued =
+            mediaMetadata.extras?.getBoolean(mediaItemExtrasKeys.isCustomQueue) ?: false
 
         return PlayerTrack(
             trackId,
             name,
             artistName,
             coverUri,
+            isCustomQueued,
+            queueIndex,
             duration,
         )
+    }
+
+    fun MediaItem.withCustomQueueFlag(flag: Boolean): MediaItem {
+        val oldExtras = mediaMetadata.extras ?: Bundle()
+
+        val newExtras = Bundle(oldExtras).apply {
+            putBoolean(mediaItemExtrasKeys.isCustomQueue, flag)
+        }
+
+        return buildUpon()
+            .setMediaMetadata(
+                mediaMetadata.buildUpon()
+                    .setExtras(newExtras)
+                    .build()
+            )
+            .build()
     }
 
     fun EnrichedTrack.toMediaItem(): MediaItem {
@@ -192,4 +311,5 @@ class PlayerViewModel(
             )
             .build()
     }
+
 }

@@ -113,9 +113,11 @@ class PlayerFragment : Fragment() {
         })
 
         binding.progress.addOnChangeListener { _, value, fromUser ->
-            if (fromUser) {
-                playerViewModel.seekTo(value.toLong())
-            }
+            if (fromUser) playerViewModel.seekTo(value.toLong())
+        }
+
+        binding.queueBtn.setOnClickListener {
+            QueueBottomSheetModal().show(requireActivity().supportFragmentManager, _TAG)
         }
     }
 }
