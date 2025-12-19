@@ -35,8 +35,10 @@ interface TracksDao : BaseDao<TrackEntity> {
     suspend fun getTracksNotInStorage(storageUris: List<String>): List<TrackEntity>
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT * FROM tracks 
-        WHERE name LIKE '%' || :query || '%' """)
-    fun searchTracks(query: String): Flow<List<TrackAndArtist>>
+        WHERE name LIKE '%' || :query || '%' """
+    )
+    fun searchTracks(query: String): Flow<List<EnrichedTrack>>
 }

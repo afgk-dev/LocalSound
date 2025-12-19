@@ -3,10 +3,18 @@ package dev.afgk.localsound.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.afgk.localsound.data.playlists.PlaylistRepository
-import dev.afgk.localsound.data.tracks.TrackAndArtist
+import dev.afgk.localsound.data.tracks.EnrichedTrack
 import dev.afgk.localsound.data.tracks.TracksRepository
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
+
 @OptIn(FlowPreview::class)
 
 class HomeViewModel(
@@ -29,7 +37,7 @@ class HomeViewModel(
     )
 
     private val _searchQuery = MutableStateFlow("")
-    val searchResults: StateFlow<List<TrackAndArtist>> = _searchQuery
+    val searchResults: StateFlow<List<EnrichedTrack>> = _searchQuery
         .debounce(250L)
         .distinctUntilChanged()
         .flatMapLatest { query ->
@@ -44,6 +52,7 @@ class HomeViewModel(
             SharingStarted.WhileSubscribed(5000),
             emptyList()
         )
+
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }

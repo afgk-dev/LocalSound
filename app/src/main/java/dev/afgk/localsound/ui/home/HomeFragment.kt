@@ -12,6 +12,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.databinding.FragmentHomeBinding
 import dev.afgk.localsound.ui.Ability
@@ -23,10 +26,6 @@ import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.playlists.PlaylistCardItemAdapter
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
-import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.room.util.query
 
 class HomeFragment : Fragment() {
     private val _TAG = "HomeFragment"
@@ -48,8 +47,8 @@ class HomeFragment : Fragment() {
     }
     private val playlistCardAdapter = PlaylistCardItemAdapter(emptyList())
 
-    private val searchAdapter = TracksListAdapter(emptyList()) { track ->
-        playerViewModel.playTrack(track.track)
+    private val searchAdapter = TracksListAdapter(emptyList()) {
+        playerViewModel.playTrack(it)
         binding.searchView.hide()
     }
 
@@ -82,7 +81,8 @@ class HomeFragment : Fragment() {
             viewModelFactory {
                 HomeViewModel(
                     MyApplication.appModule.tracksRepository,
-                    MyApplication.appModule.playlistRepository)
+                    MyApplication.appModule.playlistRepository
+                )
             }
         )[HomeViewModel::class]
 
@@ -113,8 +113,8 @@ class HomeFragment : Fragment() {
         binding.playlistsCarousel.adapter = playlistCardAdapter
 
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.playlistsState.collect{ playlists ->
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.playlistsState.collect { playlists ->
                     if (playlists.isEmpty()) {
                         binding.navigateToCreatePlaylist.visibility = View.VISIBLE
                         binding.playlistsCarousel.visibility = View.GONE
@@ -130,7 +130,7 @@ class HomeFragment : Fragment() {
         }
 
         //Open the FragmentPlaylist of the selected playlist
-        playlistCardAdapter.onItemClick = {playlistItem ->
+        playlistCardAdapter.onItemClick = { playlistItem ->
             navController.navigate("${NavigationRoutes.playlist}/${playlistItem.playlist.id}")
         }
 
@@ -171,7 +171,7 @@ class HomeFragment : Fragment() {
                     viewModel.searchResults.collect { filteredTracks ->
                         searchAdapter.updateData(filteredTracks)
 
-                        if(filteredTracks.isNotEmpty()){
+                        if (filteredTracks.isNotEmpty()) {
                             binding.tracksSearchResults.visibility = View.VISIBLE
                             binding.textNoResults.visibility = View.GONE
                         } else {
