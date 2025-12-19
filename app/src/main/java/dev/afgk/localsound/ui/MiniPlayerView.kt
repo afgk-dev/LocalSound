@@ -53,35 +53,34 @@ class MiniPlayerView @JvmOverloads constructor(
     suspend fun bindViewModel(viewModel: PlayerViewModel, activity: MainActivity) {
         playerViewModel = viewModel
 
-        viewModel.state.collect { (status, mediaMetadata, media) ->
-            Log.i(_TAG, status.name)
+        viewModel.state.collect { state ->
+            Log.i(_TAG, state.toString())
 
             if (currentRoute !in allowededRoutes)
                 return@collect hide()
 
-            when (status) {
-                PlayerStatus.PLAYING -> playing()
-                PlayerStatus.PAUSED -> paused()
-                PlayerStatus.BUFFERING -> Unit
-                else -> hide()
-            }
+            if (state.hidden) hide()
+            else if (state.buffering) buffering()
+            else if (state.error != null) error()
+            else if (state.track != null) {
+                if (state.playing) playing() else paused()
 
-            if (media != null) {
+                track = state.track.name
+                artist = state.track.artistName
+
                 binding.addToPlaylist.setOnClickListener(null)
                 binding.addToPlaylist.setOnClickListener {
-                    Log.i(_TAG, "binding.addToPlaylist")
-
-                    PlaylistQuickActionsBottomSheetModal(media.mediaId.toLong())
+                    PlaylistQuickActionsBottomSheetModal(state.track.trackId)
                         .show(
                             activity.supportFragmentManager,
                             _TAG
                         )
                 }
-            }
-
-            if (mediaMetadata != null) {
-                track = mediaMetadata.title.toString()
-                artist = mediaMetadata.artist.toString() ?: "Artista desconhecido"
+                
+                binding.progress.setProgress(
+                    state.track.progress.toInt(),
+                    true
+                )
             }
         }
     }
@@ -94,13 +93,27 @@ class MiniPlayerView @JvmOverloads constructor(
         binding.miniPlayerCard.visibility = GONE
     }
 
+    fun buffering() {
+        show()
+
+        playPauseButton.isEnabled = false
+    }
+
+    fun error() {
+        hide()
+    }
+
     fun playing() {
         show()
+
+        playPauseButton.isEnabled = true
         playPauseButton.setIconResource(R.drawable.rounded_pause_24dp)
     }
 
     fun paused() {
         show()
+
+        playPauseButton.isEnabled = true
         playPauseButton.setIconResource(R.drawable.rounded_play_arrow_24dp)
     }
 

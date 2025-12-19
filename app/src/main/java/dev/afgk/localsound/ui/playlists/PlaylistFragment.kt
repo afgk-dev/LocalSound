@@ -119,14 +119,16 @@ class PlaylistFragment : Fragment() {
 
         binding.playButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                val tracks = viewModel.playlistState.value
+                val state = viewModel.playlistState.value
 
-                if (tracks is PlaylistViewModelUiState.Success)
+                if (state is PlaylistViewModelUiState.Success) {
+                    val tracks = state.tracks
+
                     playerViewModel.playTrack(
-                        tracks.tracks[0].track.track,
-                        tracks.tracks.map { it.track.track },
-                        (viewModel.playlistState.value as PlaylistViewModelUiState.Success).shuffle
+                        tracks.first().track,
+                        tracks.map { it.track },
                     )
+                }
             }
         }
 
