@@ -93,30 +93,32 @@ class PlayerViewModel(
 
         val mediaItemBuilder = MediaItem.Builder()
 
-        val firstTrack = mediaItemBuilder.setMediaId(track.id.toString()).setUri(track.uri).build()
-
         player?.setMediaItems(listOf())
 
         if (_state.value.status == PlayerStatus.NOT_PREPARED)
             player?.prepare()
 
         fun mapNextTracks(tracks: List<TrackEntity>): List<MediaItem> {
-            return tracks.filter { it.uri != track.uri }
-                .let { tracks ->
-                    listOf(
-                        firstTrack,
-                        *tracks.map {
-                            mediaItemBuilder.setMediaId(it.id.toString())
-                                .setUri(it.uri).build()
-                        }.toTypedArray()
-                    )
+            val index = tracks.indexOfFirst { it.id == track.id }
+            if (index == -1) {
+                // Se não achou na lista, coloca a música selecionada primeiro e o resto depois
+                return listOf(track, *tracks.filter { it.id != track.id }.toTypedArray()).map {
+                    mediaItemBuilder.setMediaId(it.id.toString()).setUri(it.uri).build()
                 }
+            }
+
+            // Cria a sequência circular: do index até o fim, depois do início até o index
+            val orderedTracks = tracks.subList(index, tracks.size) + tracks.subList(0, index)
+            
+            return orderedTracks.map {
+                mediaItemBuilder.setMediaId(it.id.toString())
+                    .setUri(it.uri).build()
+            }
         }
 
         viewModelScope.launch {
-            player?.setMediaItems(mapNextTracks(tracksQueue ?: availableTracks.first().map {
-                it.track
-            }))
+            val sourceList = tracksQueue ?: availableTracks.first().map { it.track }
+            player?.setMediaItems(mapNextTracks(sourceList))
 
             player?.shuffleModeEnabled = shuffle
             player?.play()

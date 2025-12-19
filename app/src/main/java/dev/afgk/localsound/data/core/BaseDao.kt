@@ -22,6 +22,14 @@ interface BaseDao<T> {
     suspend fun insert(vararg obj: T): List<Long>
 
     /**
+     * Insert a list of objects in the database.
+     *
+     * @param obj the objects to be inserted.
+     */
+    @Insert
+    suspend fun insert(obj: List<T>): List<Long>
+
+    /**
      * Update an object from the database.
      *
      * @param obj the object to be updated

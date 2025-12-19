@@ -9,6 +9,7 @@ import dev.afgk.localsound.data.playlists.PlaylistEntity
 import dev.afgk.localsound.data.playlists.PlaylistTrackDao
 import dev.afgk.localsound.data.playlists.PlaylistTrackEntity
 import dev.afgk.localsound.data.playlists.PlaylistsDao
+import dev.afgk.localsound.data.queue.QueueDao
 import dev.afgk.localsound.data.queue.QueueTrackEntity
 import dev.afgk.localsound.data.releases.ReleaseDao
 import dev.afgk.localsound.data.releases.ReleaseEntity
@@ -34,4 +35,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun artistsDao(): ArtistDao
     abstract fun releaseDao(): ReleaseDao
     abstract fun tracksDao(): TracksDao
+    abstract fun queueDao(): QueueDao
 }
