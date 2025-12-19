@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
@@ -24,9 +24,21 @@ class PlaylistQuickActionsBottomSheetModal(
     private var _binding: PlaylistQuickActionsSheetBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: PlaylistQuickActionsViewModel
+    private val playlistRepository = MyApplication.appModule.playlistRepository
+    private val playlistQuickActionsViewModel: PlaylistQuickActionsViewModel by viewModels {
+        viewModelFactory { PlaylistQuickActionsViewModel(trackId, playlistRepository) }
+    }
+    private val playlistListAdapter = PlaylistListAdapter(
+        playlists = emptyList(),
+        onAddClick = fun(item) {
+            playlistQuickActionsViewModel.addToPlaylist(item.id)
+        },
+        onRemoveClick = fun(item) {
+            playlistQuickActionsViewModel.removeFromPlaylist(item.id)
+        }
+    )
+
     private lateinit var navController: NavController
-    private lateinit var playlistListAdapter: PlaylistListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,47 +54,58 @@ class PlaylistQuickActionsBottomSheetModal(
 
         navController = findNavController()
 
-        viewModel = ViewModelProvider.create(
-            this,
-            viewModelFactory {
-                PlaylistQuickActionsViewModel(
-                    trackId,
-                    MyApplication.appModule.playlistRepository
-                )
-            }
-        )[PlaylistQuickActionsViewModel::class]
-
-        playlistListAdapter = PlaylistListAdapter(
-            playlists = emptyList(),
-            onAddClick = fun(item) {
-                viewModel.addToPlaylist(item.id)
-            },
-            onRemoveClick = fun(item) {
-                viewModel.removeFromPlaylist(item.id)
-            }
-        )
-
-        val playlistsList = binding.playlistsList
-
-        playlistsList.layoutManager = LinearLayoutManager(requireContext())
-        playlistsList.adapter = playlistListAdapter
-
-        binding.createNewPlaylist.setOnClickListener { _ ->
-            dismiss()
-            navController.navigate("${NavigationRoutes.createPlaylist}/${trackId}")
-        }
+        setupRecycleViews()
+        setupListeners()
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
+                playlistQuickActionsViewModel.uiState.collect { state ->
                     when (state) {
-                        is PlaylistQuickActionsUiState.Success -> playlistListAdapter.updateData(
-                            state.playlists
-                        )
-
-                        is PlaylistQuickActionsUiState.Loading -> {}
+                        is PlaylistQuickActionsUiState.Success -> success(state)
+                        is PlaylistQuickActionsUiState.Loading -> loading()
                     }
                 }
+            }
+        }
+    }
+
+    private fun success(uiState: PlaylistQuickActionsUiState.Success) {
+        binding.loading.visibility = View.GONE
+
+        if (uiState.playlists.isNotEmpty()) {
+            binding.hasPlaylists.visibility = View.VISIBLE
+            binding.noPlaylists.visibility = View.GONE
+        } else {
+            binding.hasPlaylists.visibility = View.GONE
+            binding.noPlaylists.visibility = View.VISIBLE
+        }
+
+        playlistListAdapter.updateData(uiState.playlists)
+    }
+
+    private fun loading() {
+        binding.loading.visibility = View.VISIBLE
+        binding.noPlaylists.visibility = View.GONE
+        binding.hasPlaylists.visibility = View.GONE
+    }
+
+    private fun setupRecycleViews() {
+        binding.playlistsList.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = playlistListAdapter
+        }
+    }
+
+    private fun setupListeners() {
+        with(binding) {
+            createNewPlaylist.setOnClickListener { _ ->
+                dismiss()
+                navController.navigate("${NavigationRoutes.createPlaylist}/${trackId}")
+            }
+
+            createNewPlaylist2.setOnClickListener { _ ->
+                dismiss()
+                navController.navigate("${NavigationRoutes.createPlaylist}/${trackId}")
             }
         }
     }
