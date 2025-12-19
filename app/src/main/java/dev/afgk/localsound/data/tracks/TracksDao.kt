@@ -33,4 +33,10 @@ interface TracksDao : BaseDao<TrackEntity> {
     //Get the tracks that will be deleted
     @Query("SELECT * FROM tracks WHERE uri NOT IN (:storageUris)")
     suspend fun getTracksNotInStorage(storageUris: List<String>): List<TrackEntity>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM tracks 
+        WHERE name LIKE '%' || :query || '%' """)
+    fun searchTracks(query: String): Flow<List<TrackAndArtist>>
 }
