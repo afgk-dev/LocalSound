@@ -4,41 +4,80 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="32dp"
+    android:background="#FAF8FF"
     tools:context=".ui.onboarding.RequestReadPermissionFragment">
 
+    <ImageView
+        android:id="@+id/logo_icon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_audio_waves"
+        app:tint="#5D5394"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_h"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_h"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6" />
+
     <TextView
-        style="?attr/textAppearanceTitleLargeEmphasized"
+        android:id="@+id/welcome_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bem vindo a"
+        android:textSize="18sp"
+        android:textColor="#1C1B1F"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/guideline_h" />
+
+    <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bem-vindo ao LocalSound!"
-        android:layout_marginStart="64dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="LocalSound"
+        android:textSize="42sp"
+        android:textStyle="bold"
+        android:textColor="#1C1B1F"
+        android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/welcome_label" />
 
     <TextView
         android:id="@+id/permission_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Precisamos de sua permissão para acessar suas músicas."
-        android:ellipsize="none"
-        android:singleLine="false"
-        android:inputType="textMultiLine"
-        android:scrollHorizontally="false"
-        app:layout_constraintStart_toStartOf="@+id/title"
-        app:layout_constraintEnd_toEndOf="@+id/title"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:alpha="0.7"
+        android:lineSpacingExtra="4dp"
+        android:text="Precisamos da sua permissão para reproduzir seus arquivos de músicas"
+        android:textColor="#1C1B1F"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
 
-
     <Button
-        style="?attr/materialButtonStyle"
-        app:icon="@drawable/baseline_audiotrack_24"
         android:id="@+id/request_permission_btn"
+        style="@style/Widget.Material3.Button.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Ler minhas músicas"
-        app:layout_constraintStart_toStartOf="@+id/title"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#6750A4"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:text="Garantir permissão"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        app:cornerRadius="24dp"
+        app:icon="@drawable/ic_shield"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/permission_description" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
