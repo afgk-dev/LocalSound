@@ -7,6 +7,7 @@ import androidx.navigation.fragment.fragment
 import androidx.navigation.navigation
 import dev.afgk.localsound.ui.home.HomeFragment
 import dev.afgk.localsound.ui.onboarding.RequestReadPermissionFragment
+import dev.afgk.localsound.ui.player.PlayerFragment
 import dev.afgk.localsound.ui.playlists.PlaylistFragment
 import dev.afgk.localsound.ui.playlists.UpsertPlaylistFragment
 import dev.afgk.localsound.ui.sync.SyncTracksFragment
@@ -19,6 +20,7 @@ object NavigationRoutes {
     }
 
     const val home = "home"
+    const val player = "player"
 
     const val createPlaylist = "createPlaylist"
     const val updatePlaylist = "updatePlaylist"
@@ -47,6 +49,10 @@ class NavigationGraph {
             fragment<HomeFragment>(
                 route = NavigationRoutes.home
             )
+
+            fragment<PlayerFragment>(
+                route = NavigationRoutes.player
+            ) {}
 
             fragment<UpsertPlaylistFragment>(
                 route = "${NavigationRoutes.createPlaylist}/{trackId}"

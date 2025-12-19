@@ -53,6 +53,10 @@ class MiniPlayerView @JvmOverloads constructor(
         if (currentRoute !in visibleRoutes) hide()
     }
 
+    fun setOnMiniPlayerCardClick(fn: () -> Unit) {
+        miniPlayerCard.setOnClickListener { fn() }
+    }
+
     suspend fun bind(viewModel: PlayerViewModel, fragmentManager: FragmentManager) {
         playerViewModel = viewModel
 
