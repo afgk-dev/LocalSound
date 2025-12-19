@@ -41,9 +41,10 @@ class DatabaseSynchronizer(
                     name = it.artist
                 ) else null
 
-                val release = if (it.release != null) ReleaseEntity(
-                    name = it.release
-                ) else null
+                val release = ReleaseEntity(
+                    name = it.release ?: it.name,
+                    artworkUri = it.artworkUri
+                )
 
                 data class Track(
                     val name: String,
@@ -65,7 +66,7 @@ class DatabaseSynchronizer(
             }
 
         val artistsToCreate = registersToCreate.mapNotNull { it.second }.toTypedArray()
-        val releasesToCreate = registersToCreate.mapNotNull { it.third }.toTypedArray()
+        val releasesToCreate = registersToCreate.map { it.third }.toTypedArray()
 
         Log.i(_TAG, "Found ${tracksFromDevice} tracks in device")
         Log.i(_TAG, "Found ${artistsToCreate.size} artists to create")

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e3a5864fe192a27dbde6a6b93d91ff5b",
+    "identityHash": "cd8847c8b775dd134d620522f1190ad0",
     "entities": [
       {
         "tableName": "artists",
@@ -61,7 +61,7 @@
       },
       {
         "tableName": "releases",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `coverArtUri` TEXT, `createdAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `artworkUri` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -76,9 +76,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "coverArtUri",
-            "columnName": "coverArtUri",
-            "affinity": "TEXT"
+            "fieldPath": "artworkUri",
+            "columnName": "artworkUri",
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "createdAt",
@@ -104,13 +105,13 @@
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_releases_name` ON `${TABLE_NAME}` (`name`)"
           },
           {
-            "name": "index_releases_coverArtUri",
+            "name": "index_releases_artworkUri",
             "unique": true,
             "columnNames": [
-              "coverArtUri"
+              "artworkUri"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_releases_coverArtUri` ON `${TABLE_NAME}` (`coverArtUri`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_releases_artworkUri` ON `${TABLE_NAME}` (`artworkUri`)"
           }
         ]
       },
@@ -383,7 +384,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e3a5864fe192a27dbde6a6b93d91ff5b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cd8847c8b775dd134d620522f1190ad0')"
     ]
   }
 }

@@ -3,7 +3,7 @@ package dev.afgk.localsound.data.playlists
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import dev.afgk.localsound.data.tracks.TrackAndArtist
+import dev.afgk.localsound.data.tracks.EnrichedTrack
 import dev.afgk.localsound.data.tracks.TrackEntity
 
 data class PlaylistTrackWithDetails(
@@ -15,7 +15,7 @@ data class PlaylistTrackWithDetails(
         parentColumn = "trackId",
         entityColumn = "id"
     )
-    val track: TrackAndArtist
+    val track: EnrichedTrack
 )
 
 data class PlaylistAndTracksWithArtists(

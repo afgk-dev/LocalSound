@@ -4,13 +4,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import dev.afgk.localsound.data.tracks.TrackAndArtist
+import dev.afgk.localsound.data.tracks.EnrichedTrack
 import dev.afgk.localsound.databinding.TrackListItemBinding
 import dev.afgk.localsound.ui.helpers.StringFormatter
 
 class TracksListAdapter(
-    var tracks: List<TrackAndArtist>,
-    var onTrackPlay: (TrackAndArtist) -> Unit
+    var tracks: List<EnrichedTrack>,
+    var onTrackPlay: (EnrichedTrack) -> Unit
 ) :
     RecyclerView.Adapter<TracksListAdapter.ViewHolder>() {
 
@@ -44,7 +44,7 @@ class TracksListAdapter(
 
     override fun getItemCount() = tracks.size
 
-    fun updateData(newTracks: List<TrackAndArtist>) {
+    fun updateData(newTracks: List<EnrichedTrack>) {
         val diffResult = DiffUtil.calculateDiff(
             object : DiffUtil.Callback() {
                 override fun getNewListSize() = newTracks.size
