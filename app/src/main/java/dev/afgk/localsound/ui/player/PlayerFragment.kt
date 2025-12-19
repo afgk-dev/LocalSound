@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.slider.Slider
 import dev.afgk.localsound.MyApplication
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.FragmentPlayerBinding
@@ -30,6 +31,9 @@ class PlayerFragment : Fragment() {
     private val playerViewModel: PlayerViewModel by activityViewModels {
         viewModelFactory { PlayerViewModel(tracksRepository) }
     }
+
+    private var isTouchingProgressSlider = false
+    private var lastProgressSliderMaxValue = 0f
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,6 +71,13 @@ class PlayerFragment : Fragment() {
 
             val fragmentManager = requireActivity().supportFragmentManager
             setAddToPlaylistListener(track.id, fragmentManager)
+
+            if (lastProgressSliderMaxValue != (track.duration.toFloat())) {
+                lastProgressSliderMaxValue = track.duration.toFloat()
+                binding.progress.valueTo = track.duration.toFloat()
+            }
+
+            if (!isTouchingProgressSlider) binding.progress.value = track.position.toFloat()
         }
 
         binding.playBtn.isEnabled = !uiState.buffering
@@ -90,5 +101,21 @@ class PlayerFragment : Fragment() {
 
         binding.nextBtn.setOnClickListener { playerViewModel.next() }
         binding.prevBtn.setOnClickListener { playerViewModel.previous() }
+
+        binding.progress.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(p0: Slider) {
+                isTouchingProgressSlider = true
+            }
+
+            override fun onStopTrackingTouch(p0: Slider) {
+                isTouchingProgressSlider = false
+            }
+        })
+
+        binding.progress.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                playerViewModel.seekTo(value.toLong())
+            }
+        }
     }
 }

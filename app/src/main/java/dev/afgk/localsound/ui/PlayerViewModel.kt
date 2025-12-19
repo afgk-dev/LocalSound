@@ -103,6 +103,7 @@ class PlayerViewModel(
 
     fun next() = player?.seekToNext()
     fun previous() = player?.seekToPrevious()
+    fun seekTo(position: Long) = player?.seekTo(position)
 
     // Private util methods
     private fun update() {
@@ -111,8 +112,8 @@ class PlayerViewModel(
                 p.currentMediaItem?.toPlayerTrack()
             else _uiState.value.track
 
-            val duration = p.duration / 1000
-            val currentPosition = p.currentPosition / 1000
+            val duration = p.duration
+            val currentPosition = p.currentPosition
             val progress = (currentPosition.toFloat() / duration.toFloat()) * 100
 
             playingTrack = playingTrack?.copy(
