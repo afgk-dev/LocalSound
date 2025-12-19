@@ -101,9 +101,12 @@ class PlayerViewModel(
     fun playTrack(track: EnrichedTrack, initialQueue: List<EnrichedTrack>? = null) {
         player?.let { player ->
             viewModelScope.launch {
-                val queue = (initialQueue ?: tracksRepository.getTracksWithArtist().first())
+                val queue = mutableListOf(track.toMediaItem())
+
+                (initialQueue ?: tracksRepository.getTracksWithArtist().first())
                     .filter { it.track.id != track.track.id }
                     .map { it.toMediaItem() }
+                    .forEach { queue.add(it) }
 
                 player.setMediaItems(queue)
 
