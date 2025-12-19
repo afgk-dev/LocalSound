@@ -53,7 +53,7 @@ class MiniPlayerView @JvmOverloads constructor(
     suspend fun bindViewModel(viewModel: PlayerViewModel, activity: MainActivity) {
         playerViewModel = viewModel
 
-        viewModel.state.collect { state ->
+        viewModel.uiState.collect { state ->
             Log.i(_TAG, state.toString())
 
             if (currentRoute !in allowededRoutes)
@@ -76,7 +76,7 @@ class MiniPlayerView @JvmOverloads constructor(
                             _TAG
                         )
                 }
-                
+
                 binding.progress.setProgress(
                     state.track.progress.toInt(),
                     true

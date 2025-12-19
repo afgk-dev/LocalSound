@@ -10,7 +10,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
-import dev.afgk.localsound.data.tracks.TrackAndArtist
+import dev.afgk.localsound.data.tracks.EnrichedTrack
 import dev.afgk.localsound.data.tracks.TracksRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +35,6 @@ data class PlayerTrack(
 data class PlayerUiState(
     val track: PlayerTrack? = null,
     val trackQueuePosition: Int? = null,
-    val queue: List<PlayerTrack> = listOf(),
 
     val playing: Boolean = false,
     val buffering: Boolean = false,
@@ -52,24 +51,88 @@ class PlayerViewModel(
 
     private var player: Player? = null
 
-    private val _state = MutableStateFlow(PlayerUiState())
+    private val playerListener = object : Player.Listener {
+        override fun onIsPlayingChanged(isPlaying: Boolean) = update()
+        override fun onMediaItemTransition(media: MediaItem?, reason: Int) = update()
+        override fun onSeekBackIncrementChanged(seekBackIncrementMs: Long) = update()
+        override fun onSeekForwardIncrementChanged(seekForwardIncrementMs: Long) = update()
 
-    val state = _state.asStateFlow()
+        override fun onPlayerError(error: PlaybackException) =
+            _uiState.update { it.copy(error = error.toString()) }
+    }
 
+    private val _uiState = MutableStateFlow(PlayerUiState())
+    val uiState = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _uiState.collect {
+                if (uiState.value.playing) {
+                    while (true) {
+                        delay(500.milliseconds)
+                        update()
+                    }
+                }
+            }
+        }
+    }
+
+    // Public methods
     fun setPlayer(newPlayer: Player) {
-        newPlayer.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) = update()
-            override fun onMediaItemTransition(media: MediaItem?, reason: Int) = update()
-            override fun onSeekBackIncrementChanged(seekBackIncrementMs: Long) = update()
-            override fun onSeekForwardIncrementChanged(seekForwardIncrementMs: Long) = update()
-
-            override fun onPlayerError(error: PlaybackException) =
-                _state.update { it.copy(error = error.toString()) }
-        })
-
+        newPlayer.addListener(playerListener)
         player = newPlayer
     }
 
+    fun playPause() = player?.let { if (it.isPlaying) it.pause() else it.play() }
+
+    fun playTrack(track: EnrichedTrack, initialQueue: List<EnrichedTrack>? = null) {
+        player?.let { player ->
+            viewModelScope.launch {
+                val queue = (initialQueue ?: tracksRepository.getTracksWithArtist().first())
+                    .filter { it.track.id != track.track.id }
+                    .map { it.toMediaItem() }
+
+                player.setMediaItems(queue)
+
+                if (player.playbackState == Player.STATE_IDLE) player.prepare()
+
+                player.play()
+            }
+        }
+    }
+
+    fun next() = player?.seekToNext()
+    fun previous() = player?.seekToPrevious()
+
+    // Private util methods
+    private fun update() {
+        player?.let { p ->
+            var playingTrack = if (_uiState.value.track != p.currentMediaItem)
+                p.currentMediaItem?.toPlayerTrack()
+            else _uiState.value.track
+
+            val duration = p.duration / 1000
+            val currentPosition = p.currentPosition / 1000
+            val progress = (currentPosition.toFloat() / duration.toFloat()) * 100
+
+            playingTrack = playingTrack?.copy(
+                duration = duration,
+                position = currentPosition,
+                progress = progress
+            )
+
+            _uiState.update {
+                it.copy(
+                    playing = p.isPlaying,
+                    buffering = p.playbackState == Player.STATE_BUFFERING,
+                    hidden = p.playbackState == Player.STATE_IDLE,
+                    track = playingTrack,
+                )
+            }
+        }
+    }
+
+    // Extension functions
     @OptIn(UnstableApi::class)
     fun Player.getPlaybackQueue(): List<PlayerTrack> {
         val timeline = currentTimeline
@@ -115,55 +178,7 @@ class PlayerViewModel(
         )
     }
 
-    private fun update() {
-        player?.let { p ->
-            var currentTrack = _state.value.track
-            val currentMedia = p.currentMediaItem
-
-            if (currentTrack != currentMedia && currentMedia != null) {
-                val trackId = currentMedia.mediaId.toLong()
-                val track = _state.value.queue.find { it.trackId == trackId }
-
-                currentTrack = track
-            }
-
-            val duration = p.duration / 1000
-            val currentPosition = p.currentPosition / 1000
-            val progress = (currentPosition.toFloat() / duration.toFloat()) * 100
-
-            currentTrack = currentTrack?.copy(
-                duration = duration,
-                position = currentPosition,
-                progress = progress
-            )
-
-            _state.update {
-                it.copy(
-                    playing = p.isPlaying,
-                    buffering = p.playbackState == Player.STATE_BUFFERING,
-                    hidden = p.playbackState == Player.STATE_IDLE,
-                    track = currentTrack,
-                )
-            }
-        }
-    }
-
-    init {
-        viewModelScope.launch {
-            _state.collect {
-                if (state.value.playing) {
-                    while (true) {
-                        delay(500.milliseconds)
-                        update()
-                    }
-                }
-            }
-        }
-    }
-
-    fun playPause() = player?.let { if (it.isPlaying) it.pause() else it.play() }
-
-    fun TrackAndArtist.toMediaItem(): MediaItem {
+    fun EnrichedTrack.toMediaItem(): MediaItem {
         return MediaItem.Builder()
             .setMediaId(track.id.toString())
             .setUri(track.uri)
@@ -171,66 +186,9 @@ class PlayerViewModel(
                 MediaMetadata.Builder()
                     .setTitle(track.name)
                     .setArtist(artist?.name)
+                    .setArtworkUri(release?.artworkUri)
                     .build()
             )
             .build()
-    }
-
-    fun TrackAndArtist.toPlayerTrack(): PlayerTrack {
-        return PlayerTrack(
-            trackId = track.id,
-            name = track.name,
-            artistName = artist?.name ?: "Artista desconhecido",
-            coverUri = null,
-            duration = track.duration.toLong()
-        )
-    }
-
-    fun playTrack(track: TrackAndArtist, initialQueue: List<TrackAndArtist>? = null) {
-        player?.let { player ->
-            viewModelScope.launch {
-                val queue = mutableListOf(track)
-
-                if (initialQueue == null) {
-                    tracksRepository
-                        .getTracksWithArtist()
-                        .first()
-                        .filter { it.track.id != track.track.id }
-                        .forEach { queue.add(it) }
-                } else {
-                    initialQueue
-                        .filter { it.track.id != track.track.id }
-                        .forEach { queue.add(it) }
-                }
-
-                _state.update { it.copy(queue = queue.map { t -> t.toPlayerTrack() }) }
-
-                val mediaItems = queue.map { it.toMediaItem() }
-
-                player.setMediaItems(mediaItems)
-
-                if (player.playbackState == Player.STATE_IDLE) player.prepare()
-
-                player.play()
-            }
-        }
-    }
-
-    fun next() = player?.seekToNext()
-
-    fun previous() = player?.seekToPrevious()
-
-    fun shuffle() {
-        _state.value.trackQueuePosition?.let { trackPos ->
-//            val queueAfterTrack = _state.value.queue.slice(trackPos..-1)
-//            val shuffledQueue = queueAfterTrack
-//
-//            player.currentTimeline
-//
-//            val window = Timeline.Window()
-//            val queue = mutableListOf()
-//
-//            ShuffleOrder.DefaultShuffleOrder()
-        }
     }
 }
