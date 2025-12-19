@@ -42,7 +42,7 @@ class HomeFragment : Fragment() {
 
     private val playlistQuickActions = PlaylistQuickActionsBottomSheetModal(1L)
     private val tracksListAdapter = TracksListAdapter(emptyList()) {
-        playerViewModel.playTrack(it.track)
+        playerViewModel.playTrack(it)
     }
 
     override fun onCreateView(
