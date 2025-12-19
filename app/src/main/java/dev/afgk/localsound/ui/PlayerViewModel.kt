@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 data class PlayerTrack(
-    val trackId: Long,
+    val id: Long,
 
     val name: String,
     val artistName: String,

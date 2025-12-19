@@ -112,7 +112,9 @@ class MainActivity : AppCompatActivity() {
 
     fun setupPlayer() {
         val sessionToken = SessionToken(this, ComponentName(this, PlaybackService::class.java))
+
         val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+
         controllerFuture.addListener(
             {
                 playerViewModel.setPlayer(controllerFuture.get())
@@ -125,14 +127,11 @@ class MainActivity : AppCompatActivity() {
         val miniPlayer = binding.miniPlayer
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            miniPlayer.changeRoute(destination.route)
+            miniPlayer.setCurrentRoute(destination.route)
         }
 
-        val activity = this
-
-        lifecycleScope.launch {
-            miniPlayer.bindViewModel(playerViewModel, activity)
-        }
+        val fragmentManager = this.supportFragmentManager
+        lifecycleScope.launch { miniPlayer.bind(playerViewModel, fragmentManager) }
     }
 
     private var lastExternalStorageGeneration: Long? = null
@@ -146,7 +145,10 @@ class MainActivity : AppCompatActivity() {
 
         val currentVersion = MediaStore.getVersion(this)
 
-        if (lastExternalStorageVersion != currentVersion || lastExternalStorageGeneration != currentGeneration)
+        if (
+            lastExternalStorageVersion != currentVersion ||
+            lastExternalStorageGeneration != currentGeneration
+        )
             syncTracksViewModel.sync(this)
 
         if (lastExternalStorageGeneration != currentGeneration)

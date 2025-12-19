@@ -2,9 +2,9 @@ package dev.afgk.localsound.ui
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.button.MaterialButton
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.ViewMiniPlayerBinding
@@ -21,110 +21,105 @@ class MiniPlayerView @JvmOverloads constructor(
     private val binding: ViewMiniPlayerBinding =
         ViewMiniPlayerBinding.inflate(LayoutInflater.from(context), this, true)
 
-    private val playPauseButton = (binding.playPauseButton as MaterialButton)
-
-    var track: String
-        get() = binding.track.text.toString()
-        set(value) {
-            binding.track.text = value
-        }
-
-    var artist: String
-        get() = binding.artist.text.toString()
-        set(value) {
-            binding.artist.text = value
-        }
-
-    var allowededRoutes = listOf(
+    private var currentRoute: String? = null
+    private val visibleRoutes = listOf(
         NavigationRoutes.home,
         "${NavigationRoutes.playlist}/{playlistId}"
     )
 
-    var currentRoute: String? = null
-
     private var playerViewModel: PlayerViewModel? = null
 
-    fun changeRoute(route: String?) {
-        currentRoute = route
+    // XML child views
+    private val miniPlayerCard = binding.miniPlayerCard
+    private val addToPlaylistBtn = binding.addToPlaylist
+    private val prevBtn = binding.prevButton
+    private val nextBtn = binding.nextButton
+    private val playPauseBtn = (binding.playPauseButton as MaterialButton)
+    private val trackNameTxt = binding.track
+    private val artistNameTxt = binding.artist
+    private val progressIndicator = binding.progress
 
-        if (currentRoute !in allowededRoutes) hide()
+    // Setup listeners for buttons
+    init {
+        prevBtn.setOnClickListener { playerViewModel?.previous() }
+        playPauseBtn.setOnClickListener { playerViewModel?.playPause() }
+        nextBtn.setOnClickListener { playerViewModel?.next() }
     }
 
-    suspend fun bindViewModel(viewModel: PlayerViewModel, activity: MainActivity) {
+    // Public methods
+    fun setCurrentRoute(route: String?) {
+        currentRoute = route
+        if (currentRoute !in visibleRoutes) hide()
+    }
+
+    suspend fun bind(viewModel: PlayerViewModel, fragmentManager: FragmentManager) {
         playerViewModel = viewModel
 
-        viewModel.uiState.collect { state ->
-            Log.i(_TAG, state.toString())
+        viewModel.uiState.collect { uiState ->
+            if (currentRoute !in visibleRoutes) return@collect hide()
 
-            if (currentRoute !in allowededRoutes)
-                return@collect hide()
+            if (uiState.hidden) hide()
+            else if (uiState.buffering) buffering()
+            else if (uiState.error != null) error()
+            else if (uiState.track != null) {
+                if (uiState.playing) playing() else paused()
 
-            if (state.hidden) hide()
-            else if (state.buffering) buffering()
-            else if (state.error != null) error()
-            else if (state.track != null) {
-                if (state.playing) playing() else paused()
+                val track = uiState.track
 
-                track = state.track.name
-                artist = state.track.artistName
+                trackNameTxt.text = track.name
+                artistNameTxt.text = track.artistName
 
-                binding.addToPlaylist.setOnClickListener(null)
-                binding.addToPlaylist.setOnClickListener {
-                    PlaylistQuickActionsBottomSheetModal(state.track.trackId)
-                        .show(
-                            activity.supportFragmentManager,
-                            _TAG
-                        )
-                }
+                setAddPlaylistBtnListener(track.id, fragmentManager)
 
-                binding.progress.setProgress(
-                    state.track.progress.toInt(),
+                progressIndicator.setProgress(
+                    track.progress.toInt(),
                     true
                 )
             }
         }
     }
 
-    fun show() {
-        binding.miniPlayerCard.visibility = VISIBLE
+    // Private util methods
+    private fun setAddPlaylistBtnListener(trackId: Long, fragmentManager: FragmentManager) {
+        addToPlaylistBtn.setOnClickListener(null)
+        addToPlaylistBtn.setOnClickListener {
+            PlaylistQuickActionsBottomSheetModal(trackId)
+                .show(
+                    fragmentManager,
+                    _TAG
+                )
+        }
     }
 
-    fun hide() {
-        binding.miniPlayerCard.visibility = GONE
+    // Private UI state methods
+    private fun show() {
+        miniPlayerCard.visibility = VISIBLE
     }
 
-    fun buffering() {
+    private fun hide() {
+        miniPlayerCard.visibility = GONE
+    }
+
+    private fun buffering() {
         show()
-
-        playPauseButton.isEnabled = false
+        playPauseBtn.isEnabled = false
     }
 
-    fun error() {
+    private fun error() {
         hide()
     }
 
-    fun playing() {
+    private fun playing() {
         show()
 
-        playPauseButton.isEnabled = true
-        playPauseButton.setIconResource(R.drawable.rounded_pause_24dp)
+        playPauseBtn.isEnabled = true
+        playPauseBtn.setIconResource(R.drawable.rounded_pause_24dp)
     }
 
-    fun paused() {
+    private fun paused() {
         show()
 
-        playPauseButton.isEnabled = true
-        playPauseButton.setIconResource(R.drawable.rounded_play_arrow_24dp)
-    }
-
-    init {
-        with(binding) {
-            addToPlaylist.setOnClickListener {
-//                PlaylistQuickActionsBottomSheetModal()
-            }
-            prevButton.setOnClickListener { playerViewModel?.previous() }
-            playPauseButton.setOnClickListener { playerViewModel?.playPause() }
-            nextButton.setOnClickListener { playerViewModel?.next() }
-        }
+        playPauseBtn.isEnabled = true
+        playPauseBtn.setIconResource(R.drawable.rounded_play_arrow_24dp)
     }
 }
