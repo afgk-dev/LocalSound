@@ -21,6 +21,7 @@ import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.ActivityMainBinding
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationGraph
+import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.sync.SyncTracksViewModel
 import kotlinx.coroutines.launch
 
@@ -129,6 +130,8 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             miniPlayer.setCurrentRoute(destination.route)
         }
+
+        miniPlayer.setOnMiniPlayerCardClick { navController.navigate(NavigationRoutes.player) }
 
         val fragmentManager = this.supportFragmentManager
         lifecycleScope.launch { miniPlayer.bind(playerViewModel, fragmentManager) }

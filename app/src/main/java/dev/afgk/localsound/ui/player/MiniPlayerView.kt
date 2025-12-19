@@ -1,4 +1,4 @@
-package dev.afgk.localsound.ui
+package dev.afgk.localsound.ui.player
 
 import android.content.Context
 import android.util.AttributeSet
@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.button.MaterialButton
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.ViewMiniPlayerBinding
+import dev.afgk.localsound.ui.PlayerViewModel
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
 
@@ -50,6 +51,10 @@ class MiniPlayerView @JvmOverloads constructor(
     fun setCurrentRoute(route: String?) {
         currentRoute = route
         if (currentRoute !in visibleRoutes) hide()
+    }
+
+    fun setOnMiniPlayerCardClick(fn: () -> Unit) {
+        miniPlayerCard.setOnClickListener { fn() }
     }
 
     suspend fun bind(viewModel: PlayerViewModel, fragmentManager: FragmentManager) {
