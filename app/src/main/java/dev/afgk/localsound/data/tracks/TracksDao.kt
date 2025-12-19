@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface TracksDao : BaseDao<TrackEntity> {
     @Transaction
     @Query("SELECT * FROM tracks")
-    fun getTracksWithArtist(): Flow<List<TrackAndArtist>>
+    fun getEnrichedTracks(): Flow<List<EnrichedTrack>>
 
     //get a list of all tracks uris on db
     @Query("SELECT uri FROM tracks")

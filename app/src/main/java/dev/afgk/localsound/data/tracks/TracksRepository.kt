@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 class TracksRepository(
     private val tracksDao: TracksDao
 ) {
-    fun getTracksWithArtist() = tracksDao.getTracksWithArtist()
+    fun getTracksWithArtist() = tracksDao.getEnrichedTracks()
 
     suspend fun getTracksWithUriIn(uris: List<Uri>) = withContext(Dispatchers.IO) {
         tracksDao.getTracksWithUriIn(uris)

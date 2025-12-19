@@ -7,6 +7,7 @@ data class AudioFile(
     val name: String,
     val artist: String?,
     val release: String?,
+    val artworkUri: Uri,
     val duration: Int,
     val uri: Uri,
 )
