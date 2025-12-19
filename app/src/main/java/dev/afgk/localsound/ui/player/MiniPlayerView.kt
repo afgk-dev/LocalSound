@@ -1,4 +1,4 @@
-package dev.afgk.localsound.ui
+package dev.afgk.localsound.ui.player
 
 import android.content.Context
 import android.util.AttributeSet
@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.button.MaterialButton
 import dev.afgk.localsound.R
 import dev.afgk.localsound.databinding.ViewMiniPlayerBinding
+import dev.afgk.localsound.ui.PlayerViewModel
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
 
