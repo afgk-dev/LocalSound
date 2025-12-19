@@ -10,6 +10,7 @@ import dev.afgk.localsound.ui.helpers.StringFormatter
 
 class TracksListAdapter(
     var tracks: List<EnrichedTrack>,
+    val popupMenu: TrackPopupMenu,
     var onTrackPlay: (EnrichedTrack) -> Unit
 ) :
     RecyclerView.Adapter<TracksListAdapter.ViewHolder>() {
@@ -19,6 +20,7 @@ class TracksListAdapter(
         val trackArtistName = binding.trackArtistName
         val trackDuration = binding.trackDuration
         val trackClickableArea = binding.trackClickableArea
+        val popupMenuBtn = binding.popupMenuBtn
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
@@ -32,13 +34,21 @@ class TracksListAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        viewHolder.trackName.text = tracks[position].track.name
-        viewHolder.trackArtistName.text = tracks[position].artist?.name ?: "Artista desconhecido"
+        val enrichedTrack = tracks[position]
+        val (track, artist) = enrichedTrack
+
+        viewHolder.trackName.text = track.name
+        viewHolder.trackArtistName.text = artist?.name ?: "Artista desconhecido"
         viewHolder.trackDuration.text =
-            StringFormatter.fromSecondsToMinutesAndSeconds(tracks[position].track.duration)
+            StringFormatter.fromSecondsToMinutesAndSeconds(track.duration)
 
         viewHolder.trackClickableArea.setOnClickListener {
-            onTrackPlay(tracks[position])
+            onTrackPlay(enrichedTrack)
+        }
+
+        viewHolder.popupMenuBtn.setOnClickListener {
+            popupMenu.setTrackId(track.id)
+            popupMenu.show(viewHolder.popupMenuBtn)
         }
     }
 

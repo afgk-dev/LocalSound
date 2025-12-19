@@ -24,6 +24,9 @@ import dev.afgk.localsound.ui.PlayerViewModel
 import dev.afgk.localsound.ui.helpers.viewModelFactory
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
 import dev.afgk.localsound.ui.playlists.PlaylistCardItemAdapter
+import dev.afgk.localsound.ui.playlists.PlaylistQuickActionsBottomSheetModal
+import dev.afgk.localsound.ui.tracks.TrackPopupMenu
+import dev.afgk.localsound.ui.tracks.TrackPopupMenuAction
 import dev.afgk.localsound.ui.tracks.TracksListAdapter
 import kotlinx.coroutines.launch
 
@@ -42,15 +45,10 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private val tracksListAdapter = TracksListAdapter(emptyList()) {
-        playerViewModel.playTrack(it)
-    }
-    private val playlistCardAdapter = PlaylistCardItemAdapter(emptyList())
+    private lateinit var tracksListAdapter: TracksListAdapter
+    private lateinit var searchAdapter: TracksListAdapter
 
-    private val searchAdapter = TracksListAdapter(emptyList()) {
-        playerViewModel.playTrack(it)
-        binding.searchView.hide()
-    }
+    private val playlistCardAdapter = PlaylistCardItemAdapter(emptyList())
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -86,9 +84,6 @@ class HomeFragment : Fragment() {
             }
         )[HomeViewModel::class]
 
-        binding.tracksList.layoutManager = LinearLayoutManager(requireContext())
-        binding.tracksList.adapter = tracksListAdapter
-
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.tracksState.collect { tracks ->
@@ -118,7 +113,7 @@ class HomeFragment : Fragment() {
                     if (playlists.isEmpty()) {
                         binding.navigateToCreatePlaylist.visibility = View.VISIBLE
                         binding.playlistsCarousel.visibility = View.GONE
-                        binding.playlistListTitle.text = "Não há playlists"
+                        binding.playlistListTitle.text = "Minhas Playlists"
                     } else {
                         binding.navigateToCreatePlaylist.visibility = View.GONE
                         binding.playlistsCarousel.visibility = View.VISIBLE
@@ -140,6 +135,31 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclers() {
+        val fragmentManager = requireActivity().supportFragmentManager
+
+        val popupMenu = TrackPopupMenu(requireContext()) { action, trackId ->
+            when (action) {
+                TrackPopupMenuAction.AddToPlaylist ->
+                    PlaylistQuickActionsBottomSheetModal(trackId)
+                        .show(
+                            fragmentManager,
+                            _TAG
+                        )
+
+                TrackPopupMenuAction.AddToQueue ->
+                    playerViewModel.addNext(trackId)
+            }
+        }
+
+        tracksListAdapter = TracksListAdapter(emptyList(), popupMenu) {
+            playerViewModel.playTrack(it)
+        }
+
+        searchAdapter = TracksListAdapter(emptyList(), popupMenu) {
+            playerViewModel.playTrack(it)
+            binding.searchView.hide()
+        }
+
         binding.tracksList.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = tracksListAdapter
