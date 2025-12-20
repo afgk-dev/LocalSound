@@ -5,35 +5,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:orientation="vertical"
     tools:context=".ui.sync.SyncTracksFragment">
 
-    <Button
-        android:id="@+id/syncButton"
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/loading_indicator"
+            style="@style/Widget.Material3Expressive.CircularProgressIndicator.Wavy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            app:indicatorSize="72dp"
+            app:trackThickness="6dp" />
+
+
+        <ImageView
+            android:id="@+id/check"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="32dp"
+            android:alpha="0"
+            android:scaleX="0.00"
+            android:scaleY="0.00"
+            android:src="@drawable/rounded_check_circle_24dp"
+            android:tint="@color/md_theme_primary"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/loading_text"
+        style="?attr/textAppearanceBodyLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sincronizar minhas músicas"
-        app:icon="@drawable/rounded_refresh_24dp"
-        app:iconGravity="textStart" />
-
-    <LinearLayout
-        android:id="@+id/loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            style="?attr/textAppearanceTitleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Estamos encontrando suas músicas" />
-
-        <com.google.android.material.loadingindicator.LoadingIndicator
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:indicatorSize="64dp" />
-    </LinearLayout>
-
+        android:layout_marginHorizontal="110dp"
+        android:text="Estamos carregando suas músicas"
+        android:textAlignment="center" />
 </LinearLayout>

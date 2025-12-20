@@ -16,7 +16,10 @@ import dev.afgk.localsound.databinding.FragmentSyncTracksBinding
 import dev.afgk.localsound.ui.Ability
 import dev.afgk.localsound.ui.PermissionsUiState
 import dev.afgk.localsound.ui.navigation.NavigationRoutes
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class SyncTracksFragment : Fragment() {
     private var _binding: FragmentSyncTracksBinding? = null
@@ -44,7 +47,6 @@ class SyncTracksFragment : Fragment() {
 
         navController = findNavController()
 
-
         if (!PermissionsUiState.can(
                 Ability.READ_AUDIO,
                 requireContext()
@@ -53,14 +55,12 @@ class SyncTracksFragment : Fragment() {
             popUpTo(navController.graph.id) { inclusive = true }
         }
 
-        setupListeners()
-
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 syncTracksViewModel.uiState.collect {
                     when (it) {
                         is SyncTracksUiState.Init -> toBeSynced()
-                        is SyncTracksUiState.Syncing -> syncing()
+                        is SyncTracksUiState.Syncing -> Unit
                         is SyncTracksUiState.Failed -> failed()
                         is SyncTracksUiState.Synced -> synced()
                     }
@@ -69,28 +69,53 @@ class SyncTracksFragment : Fragment() {
         }
     }
 
-    fun setupListeners() {
-        binding.syncButton.setOnClickListener {
-            syncTracksViewModel.sync(requireContext())
-        }
-    }
-
     fun toBeSynced() {
-        binding.loading.visibility = View.GONE
-        binding.syncButton.visibility = View.VISIBLE
-    }
+        viewLifecycleOwner.lifecycleScope.launch {
+            binding.loadingIndicator.setProgress(50, true)
 
-    fun syncing() {
-        binding.loading.visibility = View.VISIBLE
-        binding.syncButton.visibility = View.GONE
-    }
+            delay(1.seconds)
 
-    fun synced() {
-        navController.navigate(NavigationRoutes.home) {
-            popUpTo(navController.graph.id) {
-                inclusive = true
-            }
+            syncTracksViewModel.sync(requireContext())
+
+            binding.loadingIndicator.setProgress(75, true)
+
+            delay(1.seconds)
         }
+    }
+
+    suspend fun synced() {
+        binding.loadingIndicator.setProgress(100, true)
+
+        delay(500.milliseconds)
+
+        binding.loadingIndicator.animate()
+            .alpha(0f)
+            .setDuration(300L)
+            .withEndAction {
+                binding.loadingIndicator.visibility = View.GONE
+                binding.loadingText.text = "Tudo pronto!"
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    delay(500.milliseconds)
+
+                    navController.navigate(NavigationRoutes.home) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                }
+            }
+            .start()
+
+        binding.check.animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(300L)
+            .withStartAction {
+                binding.check.visibility = View.VISIBLE
+            }
+            .start()
     }
 
     fun failed() {
