@@ -35,6 +35,9 @@ class UpsertPlaylistFragment : Fragment() {
 
     private lateinit var confirmDeletionModal: MaterialAlertDialogBuilder
 
+    private var firstTrackId: Long? = null
+    private var playlistId: Long? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,8 +50,8 @@ class UpsertPlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val firstTrackId = arguments?.getLong("trackId").let { if (it == -1L) null else it }
-        val playlistId = arguments?.getLong("playlistId").let { if (it == -1L) null else it }
+        firstTrackId = arguments?.getLong("trackId").let { if (it == -1L) null else it }
+        playlistId = arguments?.getLong("playlistId").let { if (it == -1L) null else it }
 
         navController = findNavController()
 
@@ -92,7 +95,7 @@ class UpsertPlaylistFragment : Fragment() {
             .setPositiveButton("Continuar") { dialog, which ->
                 if (playlistId == null) return@setPositiveButton
 
-                viewModel.delete(playlistId)
+                viewModel.delete(playlistId!!)
 
                 dialog.dismiss()
             }
@@ -130,7 +133,12 @@ class UpsertPlaylistFragment : Fragment() {
                 Snackbar.LENGTH_SHORT
             ).show()
 
-            navController.navigate("${NavigationRoutes.playlist}/${state.createdId}")
+            navController.navigate("${NavigationRoutes.playlist}/${state.createdId}") {
+                popUpTo(
+                    if (firstTrackId != null) "${NavigationRoutes.createPlaylist}/{trackId}"
+                    else "${NavigationRoutes.updatePlaylist}/{playlistId}"
+                ) { inclusive = true }
+            }
         }
 
         binding.cover.setCoverUri(state.coverUri)
