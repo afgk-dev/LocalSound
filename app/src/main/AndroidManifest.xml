@@ -18,6 +18,8 @@
         android:minSdkVersion="34"
         />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
